@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:id="@+id/loginRoot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="32dp">
+
+        <!-- 로고 및 텍스트 -->
+        <TextView
+            android:id="@+id/tvLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SubTrack"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#3A373C"
+            android:layout_marginTop="60dp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvWelcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="환영합니다"
+            android:textSize="16sp"
+            android:textColor="#3A373C"
+            android:layout_marginBottom="24dp" />
+
+        <!-- 사용자 유형 선택 -->
+        <LinearLayout
+            android:id="@+id/userTypeSelector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="24dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnOwner"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="자영업자"
+                android:background="@drawable/button_selected"
+                android:layout_marginEnd="8dp"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnCourier"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="배송기사"
+                android:background="@drawable/button_unselected" />
+        </LinearLayout>
+
+        <!-- 아이디 -->
+        <EditText
+            android:id="@+id/etId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="아이디를 입력하세요"
+            android:textColorHint="#999999"
+            android:backgroundTint="#999999"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- 비밀번호 -->
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="비밀번호를 입력하세요"
+            android:inputType="textPassword"
+            android:textColorHint="#999999"
+            android:backgroundTint="#999999"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- 자동로그인 + 아이디/비밀번호 찾기 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <CheckBox
+                android:id="@+id/cbAutoLogin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="자동 로그인" />
+
+            <TextView
+                android:id="@+id/tvFindPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="아이디/비밀번호 찾기"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- 로그인 버튼 -->
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="로그인"
+            android:backgroundTint="#000000"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 회원가입 유도 -->
+        <TextView
+            android:id="@+id/tvJoin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="아직 회원이 아니신가요? 회원가입 하기"
+            android:textSize="13sp"
+            android:textColor="#555555"
+            android:layout_gravity="center" />
+
+        <!-- 간편 로그인 라벨 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="간편 로그인하기"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp"
+            android:layout_gravity="center"
+            android:textColor="#333333" />
+
+        <!-- 아이콘 4개 가로 배치 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp"
+            android:weightSum="4">
+
+            <!-- 카카오 로그인 아이콘 -->
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_kakao"
+                android:contentDescription="카카오 로그인"
+                android:scaleType="fitCenter" /> <!-- 이미지 비율 맞추기 -->
+
+            <!-- 네이버 로그인 아이콘 -->
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_naver"
+                android:contentDescription="네이버 로그인"
+                android:scaleType="fitCenter" /> <!-- 이미지 비율 맞추기 -->
+
+            <!-- 구글 로그인 아이콘 -->
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_google"
+                android:contentDescription="구글 로그인"
+                android:scaleType="fitCenter" /> <!-- 이미지 비율 맞추기 -->
+
+            <!-- 애플 로그인 아이콘 -->
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_apple"
+                android:contentDescription="애플 로그인"
+                android:scaleType="fitCenter" /> <!-- 이미지 비율 맞추기 -->
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
