@@ -1,18 +1,18 @@
-*.iml
-.gradle
-/local.properties
+# IDE 관련
 .idea/
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+*.iml
+
+# Gradle
+.gradle/
 local.properties
+
+# macOS
 .DS_Store
+
+# 빌드 결과물
+/build/
+.captures/
+.externalNativeBuild/
+.cxx/
+
 
