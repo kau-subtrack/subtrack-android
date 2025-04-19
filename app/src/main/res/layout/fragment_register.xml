@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:id="@+id/contentLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 로고 -->
+        <TextView
+            android:id="@+id/tvLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SubTrack"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="해당하는 것을 작성해주세요!"
+            android:textSize="14sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 사용자 유형 선택 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="16dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnOwner"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:text="자영업자"
+                android:background="@drawable/button_selected"
+                android:textColor="#000000"
+                android:layout_marginEnd="4dp"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnCourier"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:text="배송기사"
+                android:background="@drawable/button_unselected"
+                android:textColor="#FFFFFF"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+        <!-- 아이디 + 중복확인 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
+
+            <EditText
+                android:id="@+id/etId"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="아이디를 입력하세요" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnCheckId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_unselected"
+                android:textColor="#FFFFFF"
+                android:text="중복확인" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvIdResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="12sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- 비밀번호 입력 -->
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:hint="비밀번호를 입력하세요"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- 비밀번호 확인 -->
+        <EditText
+            android:id="@+id/etConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:hint="비밀번호를 다시 입력하세요"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvPwCheckResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="12sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- 자영업자용 정보 -->
+        <EditText
+            android:id="@+id/etShopAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="가게 주소를 입력하세요"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/etBizNum"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="사업자 등록번호를 입력해주세요"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- 배송기사용 정보 -->
+        <Button
+            android:id="@+id/btnUploadLicense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="화물 운송 자격증 첨부"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnUploadCareer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="운전 경력 증명서 첨부"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- 근무 희망 지역 선택 -->
+        <LinearLayout
+            android:id="@+id/layoutRegion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnCity"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_selected"
+                android:textColor="#FFFFFF"
+                android:text="시 선택"
+                android:layout_marginEnd="4dp"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnDistrict"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_selected"
+                android:textColor="#FFFFFF"
+                android:text="구 선택"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+        <!-- 안내문 -->
+        <TextView
+            android:id="@+id/tvCourierNotice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:textSize="12sp"
+            android:padding="8dp"
+            android:background="#EEE"
+            android:text="※ 1톤 봉고 이상의 트럭 필요\n※ 충분한 휴식 필수\n※ 배정 직접적 배정 지원"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- 회원가입 버튼 -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnRegister"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/button_unselected"
+            android:textColor="#FFFFFF"
+            android:text="회원가입하기"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
