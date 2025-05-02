@@ -9,10 +9,13 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.subtrack.MainActivity
 import com.example.subtrack.R
+import com.example.subtrack.data.model.reqUserSignUp
 import com.example.subtrack.databinding.FragmentRegisterBinding
+import com.example.subtrack.service.AuthSignUpService
+import com.example.subtrack.service.viewInterface.SignUpView
 import com.example.subtrack.util.setUserTypeUI
 
-class RegisterFragment : Fragment() {
+class RegisterFragment : Fragment(), SignUpView {
 
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
@@ -65,6 +68,9 @@ class RegisterFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            //서버 req 전송
+            signUp()
+
             // TODO: 서버에 회원가입 요청 보내기 (성공 가정)
             Toast.makeText(requireContext(), "회원가입이 완료되었습니다!", Toast.LENGTH_SHORT).show()
 
@@ -100,6 +106,58 @@ class RegisterFragment : Fragment() {
     companion object {
         const val USER_TYPE_OWNER = "OWNER"
         const val USER_TYPE_COURIER = "COURIER"
+    }
+
+    private fun getUser(): reqUserSignUp {
+        val email: String = binding.etId.text.toString()
+        val password: String = binding.etPassword.text.toString()
+        //val name: String = binding.joinNameEt.text.toString()
+        val shopAddress: String = binding.etShopAddress.text.toString()
+        //화면 xml 변경 필..?
+        //val detailAddress: String = binding.et
+
+        // 위도 경도 따로 얻을것.
+        val latitude: Float
+        val longitude: Float
+
+        //OWNER일시.
+        return reqUserSignUp(
+            email, password,
+            "홍길동",
+            selectedUserType,
+            shopAddress
+            //detailAddress = TODO()
+        )
+
+        /* 전체 양식
+        return reqUserSignUp(
+            email, password,
+            "홍길동",
+            selectedUserType,
+            address = TODO(),
+            detailAddress = TODO(),
+            latitude = TODO(),
+            longitude = TODO(),
+            phoneNumber = TODO(),
+            vehicleNubmer = TODO(),
+            regionCity = TODO(),
+            regionDistrict = TODO()
+        )
+         */
+    }
+
+    private fun signUp(){
+        val authSignUpService = AuthSignUpService()
+        authSignUpService.setSignUpView(this)
+        authSignUpService.signUp(getUser())
+    }
+
+    override fun onSignUpSuccess() {
+        Toast.makeText(requireContext(), "회원가입에 성공했습니다", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onSignUpFailure() {
+        TODO("Not yet implemented")
     }
 }
 
