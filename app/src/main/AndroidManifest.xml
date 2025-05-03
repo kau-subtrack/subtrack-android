@@ -24,6 +24,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- 지도 API 키 -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDDBeTth-DF2im7UjVL4O4mP_j0MzUbB-M" />
+        <!-- MapsActivity 등록 -->
+        <activity android:name=".MapsActivity" android:exported="false" />
+
+
+
     </application>
 
 </manifest>
