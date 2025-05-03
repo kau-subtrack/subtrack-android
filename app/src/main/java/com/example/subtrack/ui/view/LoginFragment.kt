@@ -16,10 +16,16 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.subtrack.MainActivity
 import com.example.subtrack.R
+import com.example.subtrack.data.model.reqUserLogIn
+import com.example.subtrack.data.model.reqUserLogIns
+import com.example.subtrack.data.model.reqUserSignUp
 import com.example.subtrack.databinding.FragmentLoginBinding
+import com.example.subtrack.service.AuthLogInService
+import com.example.subtrack.service.AuthSignUpService
+import com.example.subtrack.service.viewInterface.LogInView
 import com.example.subtrack.util.setUserTypeUI
 
-class LoginFragment : Fragment() {
+class LoginFragment : Fragment(), LogInView {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
@@ -109,7 +115,8 @@ class LoginFragment : Fragment() {
             return
         }
 
-        // TODO: 나중에 viewModel.login(id, pw) 호출
+        // TODO: 나중에 viewModel.login(id, pw) 양식으로 변경 필요. 재모듈화
+        logIn()
 
         // 지금은 선택된 타입에 따라 홈 화면만 분기
         when (selectedUserType) {
@@ -144,9 +151,41 @@ class LoginFragment : Fragment() {
         // }
     }
 
+
+    private fun getUser(): reqUserLogIn {
+        val email: String = binding.etId.text.toString()
+        val password: String = binding.etPassword.text.toString()
+
+        return reqUserLogIn(
+            email, password, selectedUserType
+        )
+
+        /*
+        val r = reqUserLogIns()
+        r.add(reqUserLogIn(email, password, selectedUserType))
+        return r
+
+         */
+    }
+
+    private fun logIn(){
+        val authSignUpService = AuthLogInService()
+        authSignUpService.setLogInView(this)
+        authSignUpService.logIn(getUser())
+    }
+
     companion object {
         const val USER_TYPE_OWNER = "OWNER"
         const val USER_TYPE_COURIER = "COURIER"
     }
-}
 
+    override fun onLogInSuccess() {
+        context?.let {
+            Toast.makeText(it, "로그인 성공", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onLogInFailure() {
+        TODO("Not yet implemented")
+    }
+}
