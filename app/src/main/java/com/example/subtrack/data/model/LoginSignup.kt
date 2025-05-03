@@ -1,12 +1,15 @@
 package com.example.subtrack.data.model
 import com.google.gson.annotations.SerializedName
 
+
 /// 서버에서 받는 데이터 양식들 response///
 data class resUserToken(
-    @SerializedName(value = "message") var message: String,
-    //UserId token : ACCESS_TOKEN
-    @SerializedName(value = "token") var token: String,
+    var message: String? = null,
+    var token: String? = null
 )
+//@SerializedName(value = "message") var message: String,
+//UserId token : ACCESS_TOKEN
+//@SerializedName(value = "token") var token: String,
 
 data class resUserRegister(
     @SerializedName(value = "success") var success: Boolean,
@@ -17,11 +20,14 @@ data class resUserRegister(
 
 /// 클라에서 주는 데이터 양식들 request///
 data class reqUserLogIn(
-    @SerializedName(value = "email") var email: String,
-    @SerializedName(value = "password") var password: String,
-    //OWNER or DRIVER
-    @SerializedName(value = "userType") var userType: String
+    var email: String? = null,
+    var password: String? = null,
+    var userType: String? = null
 )
+//@SerializedName(value = "email") var email: String,
+//@SerializedName(value = "password") var password: String,
+//OWNER or DRIVER
+//@SerializedName(value = "userType") var userType: String
 
 data class reqUserSignUp(
     @SerializedName(value = "email") var email: String,

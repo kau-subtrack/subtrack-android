@@ -2,7 +2,10 @@ package com.example.subtrack.service
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-const val BASE_URL = "https://2y3az5fho1.execute-api.ap-northeast-2.amazonaws.com/Subtrack-stage/"
+//현재 elb로 다이렉트 접근. api gateway스킵
+//const val BASE_URL = "https://2y3az5fho1.execute-api.ap-northeast-2.amazonaws.com/Subtrack-stage/"
+//const val BASE_URL = "http://43.200.131.230:3000/"
+const val  BASE_URL = "http://web-alb-subtrack-462963304.ap-northeast-2.elb.amazonaws.com/"
 
 fun getRetrofit(): Retrofit {
     val retrofit = Retrofit.Builder().baseUrl(BASE_URL)
