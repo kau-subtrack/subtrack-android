@@ -2,42 +2,52 @@ package com.example.subtrack
 
 import android.os.Bundle
 import android.view.View
-import androidx.activity.enableEdgeToEdge
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.subtrack.databinding.ActivityMainBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        // Make status bar transparent
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
 
-        enableEdgeToEdge()
-
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-
-        binding.bottomNavigation.setupWithNavController(navController)
+        
+        setupBottomNavigation()
     }
-
-    fun hideBottomNavigation(bool: Boolean) {
-        val bottomNavigation: BottomNavigationView = findViewById(R.id.bottomNavigation)
-        if (bool) {
-            bottomNavigation.visibility = View.GONE
-        } else {
-            bottomNavigation.visibility = View.VISIBLE
+    
+    private fun setupBottomNavigation() {
+        binding.bottomNavView.setupWithNavController(navController)
+        
+        // 화면 전환 시 바텀 네비게이션 표시/숨김 설정
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.sellerHomeFragment,
+                R.id.sellerDeliveryFragment,
+                R.id.sellerSubscriptionFragment,
+                R.id.sellerManualFragment -> {
+                    binding.bottomNavView.visibility = View.VISIBLE
+                }
+                else -> binding.bottomNavView.visibility = View.GONE
+            }
         }
     }
 }

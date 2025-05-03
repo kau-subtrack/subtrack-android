@@ -3,7 +3,10 @@
     <style name="Base.Theme.Subtrack" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-    </style>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorPrimaryContainer">@color/white</item>
 
+        <item name="android:windowBackground">@color/white</item>
+    </style>
     <style name="Theme.Subtrack" parent="Base.Theme.Subtrack" />
 </resources>
