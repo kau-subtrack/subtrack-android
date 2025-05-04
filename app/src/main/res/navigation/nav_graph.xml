@@ -1,60 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
     app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.subtrack.ui.view.LoginFragment"
-        android:label="로그인">
-        <action
-            android:id="@+id/action_loginFragment_to_ownerHomeFragment"
-            app:destination="@id/ownerHomeFragment"
-            app:popUpTo="@id/loginFragment"
-            app:popUpToInclusive="true" />
-
+        android:name="com.please.ui.auth.login.LoginFragment"
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_sellerNavGraph"
+            app:destination="@id/sellerNavGraph" />
+        <action
+            android:id="@+id/action_loginFragment_to_driverNavGraph"
+            app:destination="@id/driverNavGraph" />
     </fragment>
-
-    <fragment
-        android:id="@+id/ownerHomeFragment"
-        android:name="com.example.subtrack.ui.view.OwnerHomeFragment"
-        android:label="자영업자 홈" >
-        <action
-            android:id="@+id/action_ownerHomeFragment_to_onwerpointFragment"
-            app:destination="@id/onwerpointFragment" />
-        <action
-            android:id="@+id/action_ownerHomeFragment_to_ownersendFragment"
-            app:destination="@id/ownersendFragment" />
-        <action
-            android:id="@+id/action_ownerHomeFragment_to_ownermyFragment"
-            app:destination="@id/ownermyFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/ownersendFragment"
-        android:name="com.example.subtrack.ui.view.OwnerSendFragment"
-        android:label="발송" />
-
-    <fragment
-        android:id="@+id/onwerpointFragment"
-        android:name="com.example.subtrack.ui.view.OwnerPointFragment"
-        android:label="구독/포인트" />
-
-    <fragment
-        android:id="@+id/ownermyFragment"
-        android:name="com.example.subtrack.ui.view.OwnerMyFragment"
-        android:label="MY" />
 
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.subtrack.ui.view.RegisterFragment"
-        android:label="회원가입" >
+        android:name="com.please.ui.auth.register.RegisterFragment"
+        android:label="RegisterFragment"
+        tools:layout="@layout/fragment_register">
         <action
             android:id="@+id/action_registerFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
+    <navigation
+        android:id="@+id/sellerNavGraph"
+        app:startDestination="@id/sellerHomeFragment">
+        <!-- 자영업자 화면들 -->
+        <fragment
+            android:id="@+id/sellerHomeFragment"
+            android:name="com.please.ui.seller.home.SellerHomeFragment"
+            android:label="SellerHomeFragment"
+            tools:layout="@layout/fragment_seller_home">
+            <action
+                android:id="@+id/action_sellerHomeFragment_to_sellerDeliveryFragment"
+                app:destination="@id/sellerDeliveryFragment" />
+            <action
+                android:id="@+id/action_sellerHomeFragment_to_sellerSubscriptionFragment"
+                app:destination="@id/sellerSubscriptionFragment" />
+            <action
+                android:id="@+id/action_sellerHomeFragment_to_sellerManualFragment"
+                app:destination="@id/sellerManualFragment" />
+            <action
+                android:id="@+id/action_sellerHomeFragment_to_chatbotFragment"
+                app:destination="@id/chatbotFragment" />
+        </fragment>
+        
+        <fragment
+            android:id="@+id/sellerDeliveryFragment"
+            android:name="com.please.ui.seller.delivery.SellerDeliveryFragment"
+            android:label="SellerDeliveryFragment"
+            tools:layout="@layout/fragment_seller_delivery">
+            <action
+                android:id="@+id/action_sellerDeliveryFragment_to_sellerHomeFragment"
+                app:destination="@id/sellerHomeFragment" />
+            <action
+                android:id="@+id/action_sellerDeliveryFragment_to_sellerSubscriptionFragment"
+                app:destination="@id/sellerSubscriptionFragment" />
+            <action
+                android:id="@+id/action_sellerDeliveryFragment_to_sellerManualFragment"
+                app:destination="@id/sellerManualFragment" />
+            <action
+                android:id="@+id/action_sellerDeliveryFragment_to_chatbotFragment"
+                app:destination="@id/chatbotFragment" />
+            <action
+                android:id="@+id/action_sellerDeliveryFragment_to_deliveryInputFragment"
+                app:destination="@id/deliveryInputFragment" />
+        </fragment>
+
+        <fragment
+            android:id="@+id/deliveryInputFragment"
+            android:name="com.please.ui.seller.delivery.DeliveryInputFragment"
+            android:label="DeliveryInputFragment"
+            tools:layout="@layout/fragment_delivery_input" >
+
+            <argument
+                android:name="pickupDate"
+                app:argType="long"
+                app:nullable="false" />
+        </fragment>
+        
+        <fragment
+            android:id="@+id/sellerSubscriptionFragment"
+            android:name="com.please.ui.seller.subscription.SellerSubscriptionFragment"
+            android:label="SellerSubscriptionFragment"
+            tools:layout="@layout/fragment_seller_subscription" />
+        
+        <fragment
+            android:id="@+id/sellerManualFragment"
+            android:name="com.please.ui.seller.manual.SellerManualFragment"
+            android:label="SellerManualFragment"
+            tools:layout="@layout/fragment_seller_manual" />
+    </navigation>
+
+    <navigation
+        android:id="@+id/driverNavGraph"
+        app:startDestination="@id/driverHomeFragment">
+        <!-- 배송기사 화면들 -->
+        <fragment
+            android:id="@+id/driverHomeFragment"
+            android:name="com.please.ui.driver.home.DriverHomeFragment"
+            android:label="DriverHomeFragment"
+            tools:layout="@layout/fragment_driver_home" />
+        <!-- 배송기사의 다른 화면들... -->
+    </navigation>
+    
+    <fragment
+        android:id="@+id/chatbotFragment"
+        android:name="com.please.ui.seller.chat.ChatbotFragment"
+        android:label="ChatbotFragment"
+        tools:layout="@layout/fragment_chatbot" />
 </navigation>

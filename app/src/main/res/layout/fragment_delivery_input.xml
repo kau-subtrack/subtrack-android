@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="16dp"
+    android:paddingTop="36dp"
+    tools:context=".ui.seller.delivery.DeliveryInputFragment">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="배송정보 입력"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        app:layout_constraintBottom_toTopOf="@id/button_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 제품명 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="제품명"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/et_product_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_button_unselected"
+                android:hint="제품명을 입력하세요"
+                android:inputType="text"
+                android:padding="12dp" />
+
+            <!-- 수령인 이름 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="수령인 이름"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/et_recipient_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_button_unselected"
+                android:hint="수령인 이름을 입력하세요"
+                android:inputType="text"
+                android:padding="12dp" />
+
+            <!-- 수령인 전화번호 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="수령인 전화번호"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/et_recipient_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_button_unselected"
+                android:hint="전화번호를 입력하세요"
+                android:inputType="phone"
+                android:padding="12dp" />
+
+            <!-- 배송 주소 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="배송 주소"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/et_address"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_button_unselected"
+                    android:hint="주소를 입력하세요"
+                    android:inputType="text"
+                    android:padding="12dp"
+                    android:focusable="false"/>
+
+                <Button
+                    android:id="@+id/btn_address_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:text="검색"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/black" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/et_detail_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_button_unselected"
+                android:hint="상세주소를 입력하세요"
+                android:inputType="text"
+                android:padding="12dp" />
+
+            <!-- 택배 크기 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="택배 크기"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_small"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:text="소"
+                    android:textColor="@color/black"
+                    android:background="@drawable/bg_button_unselected" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_medium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:text="중"
+                    android:textColor="@color/white"
+                    android:background="@drawable/bg_button_selected" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_large"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:text="대"
+                    android:textColor="@color/black"
+                    android:background="@drawable/bg_button_unselected" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_x_large"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:text="특대"
+                    android:textColor="@color/black"
+                    android:background="@drawable/bg_button_unselected" />
+            </LinearLayout>
+
+            <!-- 취급주의 품목 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="취급 주의 품목"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_caution"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_button_unselected"
+                android:text="파손주의"
+                android:textColor="@color/black" />
+
+            <!-- 택배 크기별 안내 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="#F5F5F5"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@android:drawable/ic_dialog_info"
+                    android:drawablePadding="8dp"
+                    android:text="택배 크기별 포인트 안내"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="• 소 (100cm / 5kg 이하) - 2포인트"
+                    android:textColor="#757575" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="• 중 (120cm / 10kg 이하) - 3포인트"
+                    android:textColor="#757575" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="• 대 (140cm / 20kg 이하) - 5포인트"
+                    android:textColor="#757575" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="• 특대 (160cm / 30kg 이하) - 8포인트"
+                    android:textColor="#757575" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- 저장 및 취소 버튼 -->
+    <LinearLayout
+        android:id="@+id/button_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="취소"
+            android:textColor="@color/black"
+            android:background="@drawable/bg_button_unselected" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="저장"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_button_selected" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

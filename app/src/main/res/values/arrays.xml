@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 스피너 기본 아이템 - 코드에서 동적 설정 -->
+    <string-array name="years">
+    </string-array>
+
+    <string-array name="months">
+    </string-array>
+
+    <string-array name="days">
+    </string-array>
+</resources>

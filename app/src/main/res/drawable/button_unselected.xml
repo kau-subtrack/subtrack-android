@@ -1,8 +1,0 @@
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape>
-            <solid android:color="#000000" /> <!-- 검정 배경 -->
-            <corners android:radius="12dp" />
-        </shape>
-    </item>
-</selector>

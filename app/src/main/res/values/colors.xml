@@ -2,6 +2,13 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="blue">#0000FF</color>
-    <color name="green">#008000</color>
+    <color name="green">#FF4CAF50</color>
+    <color name="red">#FFF44336</color>
+    <color name="blue">#FF2196F3</color>
+    <color name="gray">#FF9E9E9E</color>
+    
+    <!-- 배송 상태 색상 -->
+    <color name="delivery_pending">#FF9E9E9E</color>
+    <color name="delivery_in_progress">#FF2196F3</color>
+    <color name="delivery_delivered">#FF4CAF50</color>
 </resources>

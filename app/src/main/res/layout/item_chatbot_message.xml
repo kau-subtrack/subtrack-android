@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <ImageView
+        android:id="@+id/iv_chatbot_avatar"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_chatbot"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="챗봇 아바타" />
+
+    <TextView
+        android:id="@+id/tv_chatbot_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SubTrack 챗봇"
+        android:textSize="14sp"
+        android:textColor="#757575"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/iv_chatbot_avatar"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_message_content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_chatbot_message"
+        android:padding="12dp"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintStart_toEndOf="@id/iv_chatbot_avatar"
+        app:layout_constraintTop_toBottomOf="@id/tv_chatbot_name"
+        app:layout_constraintWidth_max="260dp"
+        app:layout_constraintWidth_percent="0.75"
+        tools:text="안녕하세요! SubTrack 고객센터입니다. 무엇을 도와드릴까요?" />
+
+    <TextView
+        android:id="@+id/tv_timestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="오전 10:30"
+        android:textSize="12sp"
+        android:textColor="#757575"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/tv_message_content"
+        app:layout_constraintBottom_toBottomOf="@id/tv_message_content" />
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/action_buttons_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="44dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_message_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:flexWrap="wrap"
+        app:alignItems="flex_start"
+        app:flexDirection="row"
+        app:justifyContent="flex_start">
+        
+        <!-- Action buttons will be added dynamically -->
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
