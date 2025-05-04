@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Subtrack" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.Please" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="colorSurface">@color/white</item>
@@ -8,5 +8,5 @@
 
         <item name="android:windowBackground">@color/white</item>
     </style>
-    <style name="Theme.Subtrack" parent="Base.Theme.Subtrack" />
+    <style name="Theme.Please" parent="Base.Theme.Please" />
 </resources>

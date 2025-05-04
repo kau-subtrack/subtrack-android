@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/sellerHomeFragment"
+        android:icon="@drawable/ic_home"
+        android:title="홈"/>
+    <item
+        android:id="@+id/sellerDeliveryFragment"
+        android:icon="@drawable/ic_delivery"
+        android:title="발송"/>
+    <item
+        android:id="@+id/sellerSubscriptionFragment"
+        android:icon="@drawable/ic_subscription"
+        android:title="구독/포인트"/>
+    <item
+            android:id="@+id/sellerManualFragment"
+            android:icon="@drawable/icons_book"
+            android:title="사용설명서"/>
+</menu>
