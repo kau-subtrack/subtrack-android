@@ -22,7 +22,7 @@ class RegisterViewModel @Inject constructor(
     private val _idCheckState = MutableLiveData<IdCheckState>()
     val idCheckState: LiveData<IdCheckState> = _idCheckState
     
-    private val _selectedUserType = MutableLiveData<UserType>(UserType.SELLER)
+    private val _selectedUserType = MutableLiveData<UserType>(UserType.OWNER)
     val selectedUserType: LiveData<UserType> = _selectedUserType
 
     fun setUserType(userType: UserType) {
@@ -88,7 +88,7 @@ class RegisterViewModel @Inject constructor(
         // 사용자 유형별 필수 항목 검증
         val userType = selectedUserType.value!!
         when (userType) {
-            UserType.SELLER -> {
+            UserType.OWNER -> {
                 if (businessNumber.isNullOrEmpty() || address.isNullOrEmpty()) {
                     _registerState.value = RegisterState.Error("사업자 정보를 모두 입력해주세요.")
                     return

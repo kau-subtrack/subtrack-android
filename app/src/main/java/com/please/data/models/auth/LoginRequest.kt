@@ -1,7 +1,7 @@
 package com.please.data.models.auth
 
 data class LoginRequest(
-    val id: String,
+    val email: String,
     val password: String,
     val userType: UserType
 )

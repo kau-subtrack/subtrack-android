@@ -48,14 +48,18 @@ class LoginFragment : Fragment() {
                 is LoginViewModel.LoginState.Success -> {
                     binding.progressBar.visibility = View.GONE
                     binding.btnLogin.isEnabled = true
-                    
-                    // Navigate based on user type
-                    when (state.data.user.userType) {
-                        UserType.SELLER -> {
-                            findNavController().navigate(R.id.action_loginFragment_to_sellerNavGraph)
-                        }
-                        UserType.DRIVER -> {
-                            findNavController().navigate(R.id.action_loginFragment_to_driverNavGraph)
+
+                    viewModel.selectedUserType.observe(viewLifecycleOwner) { s ->
+
+                        // Navigate based on user type
+                        when (s) {
+                            UserType.OWNER -> {
+                                findNavController().navigate(R.id.action_loginFragment_to_sellerNavGraph)
+                            }
+
+                            UserType.DRIVER -> {
+                                findNavController().navigate(R.id.action_loginFragment_to_driverNavGraph)
+                            }
                         }
                     }
                 }
@@ -75,7 +79,7 @@ class LoginFragment : Fragment() {
     private fun setupListeners() {
         // User type selection
         binding.btnSeller.setOnClickListener {
-            viewModel.setUserType(UserType.SELLER)
+            viewModel.setUserType(UserType.OWNER)
         }
         
         binding.btnDriver.setOnClickListener {
@@ -108,7 +112,7 @@ class LoginFragment : Fragment() {
 
     private fun updateUserTypeSelection(userType: UserType) {
         when (userType) {
-            UserType.SELLER -> {
+            UserType.OWNER -> {
                 binding.btnSeller.setBackgroundResource(R.drawable.bg_button_selected)
                 binding.btnSeller.setTextColor(resources.getColor(R.color.white, null))
                 

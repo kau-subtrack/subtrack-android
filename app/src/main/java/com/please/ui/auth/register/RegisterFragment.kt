@@ -98,7 +98,7 @@ class RegisterFragment : Fragment() {
     private fun setupListeners() {
         // 사용자 유형 선택
         binding.btnSeller.setOnClickListener {
-            viewModel.setUserType(UserType.SELLER)
+            viewModel.setUserType(UserType.OWNER)
         }
         
         binding.btnDriver.setOnClickListener {
@@ -118,7 +118,7 @@ class RegisterFragment : Fragment() {
             
             // 사용자 유형별 추가 정보
             when (viewModel.selectedUserType.value) {
-                UserType.SELLER -> {
+                UserType.OWNER -> {
                     val businessNumber = binding.etBusinessNumber.text.toString()
                     val address = binding.etAddress.text.toString()
                     
@@ -191,7 +191,7 @@ class RegisterFragment : Fragment() {
 
     private fun updateUserTypeSelection(userType: UserType) {
         when (userType) {
-            UserType.SELLER -> {
+            UserType.OWNER -> {
                 binding.btnSeller.setBackgroundResource(R.drawable.bg_button_selected)
                 binding.btnSeller.setTextColor(resources.getColor(R.color.white, null))
                 
@@ -216,7 +216,7 @@ class RegisterFragment : Fragment() {
     
     private fun updateVisibilityBasedOnUserType(userType: UserType) {
         when (userType) {
-            UserType.SELLER -> {
+            UserType.OWNER -> {
                 // 자영업자 관련 항목 표시
                 binding.sellerInfoLayout.visibility = View.VISIBLE
                 binding.driverInfoLayout.visibility = View.GONE
