@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Subtrack</string>
-    <string name="google_maps_key">AIzaSyBbf7RzN2iMRMo_XsFRU00bH6JX4GziByg</string>
+    <string name="google_maps_key">api 생략</string>
 </resources>
