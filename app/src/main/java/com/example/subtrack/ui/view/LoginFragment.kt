@@ -37,6 +37,8 @@ class LoginFragment : Fragment(), LogInView {
 
     private val navController by lazy {
         findNavController()
+        override fun getContext(): Context? {
+        return context
     }
 
     override fun onCreateView(
@@ -48,6 +50,8 @@ class LoginFragment : Fragment(), LogInView {
         (activity as MainActivity).hideBottomNavigation(true)
 
         return binding.root
+        override fun getContext(): Context? {
+        return context
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,9 +59,13 @@ class LoginFragment : Fragment(), LogInView {
 
         setupJoinText()
         setupUserTypeButtons()
-        binding.btnLogin.setOnClickListener { onLoginClicked() }
+        binding.btnLogin.setOnClickListener { onLoginClicked()     override fun getContext(): Context? {
+        return context
+    }
 
         observeLoginState()  // ViewModel 연동 시 상태 관찰용
+        override fun getContext(): Context? {
+        return context
     }
 
     private fun setupJoinText() {
@@ -70,8 +78,12 @@ class LoginFragment : Fragment(), LogInView {
         spannable.setSpan(object : ClickableSpan() {
             override fun onClick(widget: View) {
                 findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
-            }
-        }, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                override fun getContext(): Context? {
+        return context
+    }
+            override fun getContext(): Context? {
+        return context
+    }, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         spannable.setSpan(
             ForegroundColorSpan(Color.parseColor("#000000")),
@@ -81,6 +93,8 @@ class LoginFragment : Fragment(), LogInView {
         binding.tvJoin.text = spannable
         binding.tvJoin.movementMethod = LinkMovementMethod.getInstance()
         binding.tvJoin.highlightColor = Color.TRANSPARENT
+        override fun getContext(): Context? {
+        return context
     }
 
     private fun setupUserTypeButtons() {
@@ -88,22 +102,32 @@ class LoginFragment : Fragment(), LogInView {
         binding.btnOwner.setOnClickListener {
             selectedUserType = USER_TYPE_OWNER
             updateUserTypeUI()
-        }
+            override fun getContext(): Context? {
+        return context
+    }
         binding.btnCourier.setOnClickListener {
             selectedUserType = USER_TYPE_COURIER
             updateUserTypeUI()
-        }
+            override fun getContext(): Context? {
+        return context
+    }
+        override fun getContext(): Context? {
+        return context
     }
 
     private fun updateUserTypeUI() {
         val isOwner = selectedUserType == USER_TYPE_OWNER
         // util 함수로 버튼 스타일 토글
         setUserTypeUI(isOwner, binding.btnOwner, binding.btnCourier)
+        override fun getContext(): Context? {
+        return context
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        override fun getContext(): Context? {
+        return context
     }
 
     private fun onLoginClicked() {
@@ -113,42 +137,53 @@ class LoginFragment : Fragment(), LogInView {
         if (id.isBlank() || pw.isBlank()) {
             showError("아이디와 비밀번호를 입력해주세요")
             return
-        }
+            override fun getContext(): Context? {
+        return context
+    }
 
-        // TODO: 나중에 viewModel.login(id, pw) 양식으로 변경 필요. 재모듈화
+        // 백엔드 API를 통한 실제 로그인 수행
         logIn()
-
-        // 지금은 선택된 타입에 따라 홈 화면만 분기
-        when (selectedUserType) {
-            USER_TYPE_OWNER -> navigateToOwnerHome()
-            USER_TYPE_COURIER -> navigateToCourierHome()
-            else -> showError("사용자 타입을 선택해주세요")
-        }
+        override fun getContext(): Context? {
+        return context
     }
 
     private fun navigateToOwnerHome() {
         Toast.makeText(requireContext(), "자영업자 로그인 성공", Toast.LENGTH_SHORT).show()
         findNavController().navigate(R.id.action_loginFragment_to_ownerHomeFragment)
+        override fun getContext(): Context? {
+        return context
     }
 
     private fun navigateToCourierHome() {
         Toast.makeText(requireContext(), "배송기사 로그인 성공", Toast.LENGTH_SHORT).show()
         //findNavController().navigate(R.id.action_loginFragment_to_courierHomeFragment)
+        override fun getContext(): Context? {
+        return context
     }
 
 
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        override fun getContext(): Context? {
+        return context
     }
 
     private fun observeLoginState() {
         // TODO: viewModel.loginState.observe(viewLifecycleOwner) { state ->
         //     when (state) {
-        //         is LoginState.Loading -> { /* 로딩 UI */ }
+        //         is LoginState.Loading -> { /* 로딩 UI */     override fun getContext(): Context? {
+        return context
+    }
         //         is LoginState.Success -> navigateToHome()
         //         is LoginState.Error -> showError(state.msg)
-        //     }
-        // }
+        //         override fun getContext(): Context? {
+        return context
+    }
+        //     override fun getContext(): Context? {
+        return context
+    }
+        override fun getContext(): Context? {
+        return context
     }
 
 
@@ -166,26 +201,49 @@ class LoginFragment : Fragment(), LogInView {
         return r
 
          */
+        override fun getContext(): Context? {
+        return context
     }
 
     private fun logIn(){
         val authSignUpService = AuthLogInService()
         authSignUpService.setLogInView(this)
         authSignUpService.logIn(getUser())
+        override fun getContext(): Context? {
+        return context
     }
 
     companion object {
         const val USER_TYPE_OWNER = "OWNER"
         const val USER_TYPE_COURIER = "COURIER"
+        override fun getContext(): Context? {
+        return context
     }
 
     override fun onLogInSuccess() {
         context?.let {
             Toast.makeText(it, "로그인 성공", Toast.LENGTH_SHORT).show()
-        }
+            override fun getContext(): Context? {
+        return context
+    }
+        
+        // 로그인 성공 시 사용자 타입에 따라 화면 전환
+        when (selectedUserType) {
+            USER_TYPE_OWNER -> navigateToOwnerHome()
+            USER_TYPE_COURIER -> navigateToCourierHome()
+            else -> showError("사용자 타입을 선택해주세요")
+            override fun getContext(): Context? {
+        return context
+    }
+        override fun getContext(): Context? {
+        return context
     }
 
     override fun onLogInFailure() {
-        TODO("Not yet implemented")
+        showError("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.")
+        override fun getContext(): Context? {
+        return context
     }
-}
+    override fun getContext(): Context? {
+        return context
+    }

@@ -5,14 +5,22 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:padding="16dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -28,11 +36,12 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="12dp" />
 
-            <ImageView
-                android:id="@+id/ivMap"
+            <!-- Google Maps Fragment -->
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
                 android:layout_width="0dp"
                 android:layout_height="180dp"
-                android:scaleType="centerCrop"
                 app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -43,9 +52,9 @@
                 android:id="@+id/tvShopAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="서울특별시 강남구 테헤란로 123"
+                android:text=""
                 android:textSize="14sp"
-                app:layout_constraintTop_toBottomOf="@id/ivMap"
+                app:layout_constraintTop_toBottomOf="@id/map"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="8dp" />
 
@@ -85,7 +94,7 @@
                         android:id="@+id/tvCourierName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="이재혁"
+                        android:text=""
                         android:layout_marginStart="8dp" />
                 </LinearLayout>
 
@@ -104,7 +113,7 @@
                         android:id="@+id/tvCourierPhone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="010-1234-5678"
+                        android:text=""
                         android:layout_marginStart="8dp" />
                 </LinearLayout>
 
@@ -123,7 +132,7 @@
                         android:id="@+id/tvCourierCar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="서울 12가 3456"
+                        android:text=""
                         android:layout_marginStart="8dp" />
                 </LinearLayout>
             </LinearLayout>
@@ -161,7 +170,7 @@
                     android:id="@+id/tvPickupDateValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2025년 4월 12일 (토)"
+                    android:text=""
                     android:layout_marginStart="8dp" />
             </LinearLayout>
 
@@ -195,7 +204,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="300"
+                        android:text=""
                         android:textColor="@android:color/white"
                         android:textSize="28sp"
                         android:textStyle="bold" />
@@ -239,7 +248,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Standard Plus" />
+                    android:text="" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -258,5 +267,3 @@
         app:maxImageSize="32dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-

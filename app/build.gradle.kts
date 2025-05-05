@@ -35,6 +35,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -54,4 +55,12 @@ dependencies {
     implementation (libs.retrofit)
     implementation (libs.retrofit2.converter.gson)
     implementation (libs.retrofit2.adapter.rxjava2)
+    
+    // Google Maps
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    
+    // OkHttp & Logging
+    implementation ("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.11.0")
 }

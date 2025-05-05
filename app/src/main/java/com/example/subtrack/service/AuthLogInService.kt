@@ -4,6 +4,7 @@ import com.example.subtrack.data.model.reqUserLogIn
 import com.example.subtrack.data.model.resUserToken
 import com.example.subtrack.service.interFace.LogInInterFace
 import com.example.subtrack.service.viewInterface.LogInView
+import com.example.subtrack.util.TokenManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -11,9 +12,11 @@ import retrofit2.Response
 class AuthLogInService {
     // 1단계
     private lateinit var logInView: LogInView
+    private lateinit var tokenManager: TokenManager
 
     fun setLogInView(logInView: LogInView) {
         this.logInView = logInView
+        this.tokenManager = TokenManager(logInView.getContext() ?: throw IllegalStateException("Context is null"))
     }
 
     // 2단계
@@ -25,14 +28,16 @@ class AuthLogInService {
                 Log.d("LOGIN/SUCCESS", user.toString())
                 Log.d("LOGIN/SUCCESS", response.toString())
                 Log.d("LOGIN/SUCCESS", response.body().toString())
-                //val resp: resUserToken = response.body()!!
+                
                 val resp = response.body()
-                if (resp != null) {
+                if (resp != null && !resp.token.isNullOrEmpty()) {
                     Log.d("LOGIN", "$resp")
+                    // 토큰 저장
+                    tokenManager.saveToken(resp.token)
                     logInView.onLogInSuccess()
                 }
                 else {
-                    Log.d("LOGIN/ERROR", "Response body is null")
+                    Log.d("LOGIN/ERROR", "Response body is null or token is empty")
                     logInView.onLogInFailure()
                 }
             }
