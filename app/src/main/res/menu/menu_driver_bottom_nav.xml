@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/driverHomeFragment"
+        android:icon="@drawable/ic_home"
+        android:title="홈" />
+    <item
+        android:id="@+id/driverCollectFragment"
+        android:icon="@drawable/ic_car"
+        android:title="수거" />
+    <item
+        android:id="@+id/driverDeliverFragment"
+        android:icon="@drawable/ic_delivery"
+        android:title="배송" />
+    <item
+        android:id="@+id/driverMapFragment"
+        android:icon="@drawable/ic_location"
+        android:title="지도" />
+</menu>
