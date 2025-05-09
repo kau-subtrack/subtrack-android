@@ -47,6 +47,7 @@ class LoginViewModel @Inject constructor(
 
                 //성공시, res body반환.
                 if (response.isSuccessful && response.body() != null) {
+                    AuthRepository.AppState.userToken = response.body()?.token
                     _loginState.value = LoginState.Success(response.body()!!)
                 } else {
                     _loginState.value = LoginState.Error("로그인에 실패했습니다: ${response.message()}")

@@ -1,18 +1,23 @@
 package com.please.data.repositories
 
-import com.please.data.models.seller.CourierInfo
-import com.please.data.models.seller.PickupInfo
+import com.please.data.api.SellerProfileApi
 import com.please.data.models.seller.SellerHomeInfo
-import com.please.data.models.seller.StoreInfo
 import javax.inject.Inject
-import javax.inject.Singleton
+import retrofit2.Response
+//import okhttp3.Response
 
-@Singleton
-class SellerRepository @Inject constructor() {
-    
-    // 실제 구현에서는 API 또는 로컬 데이터베이스에서 데이터를 가져옵니다.
-    // 지금은 목업 데이터를 반환합니다.
-    suspend fun getSellerHomeInfo(): SellerHomeInfo {
+//@Singleton
+class SellerRepository @Inject constructor(
+    private val ownerService: SellerProfileApi
+) {
+    suspend fun ownerHome(token: String): Response<SellerHomeInfo> {
+        return ownerService.ownerHome("Bearer $token")
+    }
+        /*
+        class header(
+            authorization: String = "Bearer $token"
+        )
+
         return SellerHomeInfo(
             storeInfo = StoreInfo(
                 address = "서울특별시 강남구 테헤란로 123",
@@ -30,5 +35,6 @@ class SellerRepository @Inject constructor() {
             points = 300,
             subscription = "Standard Plus"
         )
-    }
+
+         */
 }
