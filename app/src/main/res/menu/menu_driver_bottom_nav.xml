@@ -6,7 +6,7 @@
         android:title="홈" />
     <item
         android:id="@+id/driverCollectFragment"
-        android:icon="@drawable/ic_car"
+        android:icon="@drawable/ic_package_box"
         android:title="수거" />
     <item
         android:id="@+id/driverDeliverFragment"
