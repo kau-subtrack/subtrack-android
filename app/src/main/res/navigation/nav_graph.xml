@@ -111,7 +111,17 @@
             android:id="@+id/driverHomeFragment"
             android:name="com.please.ui.driver.home.DriverHomeFragment"
             android:label="DriverHomeFragment"
-            tools:layout="@layout/fragment_driver_home" />
+            tools:layout="@layout/fragment_driver_home" >
+            <action
+                android:id="@+id/action_driverHomeFragment_to_driverCollectFragment"
+                app:destination="@id/driverCollectFragment" />
+            <action
+                android:id="@+id/action_driverHomeFragment_to_driverDeliverFragment"
+                app:destination="@id/driverDeliverFragment" />
+            <action
+                android:id="@+id/action_driverHomeFragment_to_driverMapFragment"
+                app:destination="@id/driverMapFragment" />
+        </fragment>
             
         <fragment
             android:id="@+id/driverCollectFragment"
