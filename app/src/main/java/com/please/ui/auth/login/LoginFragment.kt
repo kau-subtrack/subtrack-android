@@ -70,7 +70,7 @@ class LoginFragment : Fragment() {
                 }
             }
         }
-        
+
         viewModel.selectedUserType.observe(viewLifecycleOwner) { userType ->
             updateUserTypeSelection(userType)
         }

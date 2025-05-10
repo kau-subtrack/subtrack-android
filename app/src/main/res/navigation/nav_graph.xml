@@ -111,8 +111,35 @@
             android:id="@+id/driverHomeFragment"
             android:name="com.please.ui.driver.home.DriverHomeFragment"
             android:label="DriverHomeFragment"
-            tools:layout="@layout/fragment_driver_home" />
-        <!-- 배송기사의 다른 화면들... -->
+            tools:layout="@layout/fragment_driver_home" >
+            <action
+                android:id="@+id/action_driverHomeFragment_to_driverCollectFragment"
+                app:destination="@id/driverCollectFragment" />
+            <action
+                android:id="@+id/action_driverHomeFragment_to_driverDeliverFragment"
+                app:destination="@id/driverDeliverFragment" />
+            <action
+                android:id="@+id/action_driverHomeFragment_to_driverMapFragment"
+                app:destination="@id/driverMapFragment" />
+        </fragment>
+            
+        <fragment
+            android:id="@+id/driverCollectFragment"
+            android:name="com.please.ui.driver.collect.DriverCollectFragment"
+            android:label="DriverCollectFragment"
+            tools:layout="@layout/fragment_driver_collect" />
+            
+        <fragment
+            android:id="@+id/driverDeliverFragment"
+            android:name="com.please.ui.driver.deliver.DriverDeliverFragment"
+            android:label="DriverDeliverFragment"
+            tools:layout="@layout/fragment_driver_deliver" />
+            
+        <fragment
+            android:id="@+id/driverMapFragment"
+            android:name="com.please.ui.driver.map.DriverMapFragment"
+            android:label="DriverMapFragment"
+            tools:layout="@layout/fragment_driver_map" />
     </navigation>
     
     <fragment
