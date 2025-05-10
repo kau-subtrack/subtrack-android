@@ -15,6 +15,7 @@ import javax.inject.Inject
 import kotlin.math.log
 
 @HiltViewModel
+
 class LoginViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
@@ -57,6 +58,7 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
+
 /*
     fun login(id: String, password: String) {
         if (id.isEmpty() || password.isEmpty()) {
@@ -79,17 +81,16 @@ class LoginViewModel @Inject constructor(
                 )
                 val dummyResponse = LoginResponse(
                     token = "dummy-token-abc123",
-                    id = "1",
-                    message = "mm"
-                    //user = dummyUser
+                    //id = "1",
+                    message = "로그인 성공"
                 )
                 _loginState.value = LoginState.Success(dummyResponse)
             } else {
                 _loginState.value = LoginState.Error("아이디 또는 비밀번호가 올바르지 않습니다.")
             }
         }
-    }
- */
+    }*/
+
 
     sealed class LoginState {
         object Loading : LoginState()

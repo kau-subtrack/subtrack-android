@@ -49,17 +49,17 @@ class LoginFragment : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     binding.btnLogin.isEnabled = true
 
-                    viewModel.selectedUserType.observe(viewLifecycleOwner) { s ->
-
-                        // Navigate based on user type
-                        when (s) {
-                            UserType.OWNER -> {
-                                findNavController().navigate(R.id.action_loginFragment_to_sellerNavGraph)
-                            }
-
-                            UserType.DRIVER -> {
-                                findNavController().navigate(R.id.action_loginFragment_to_driverNavGraph)
-                            }
+                    // 로그인 성공 시 현재 선택된 사용자 유형에 따라 네비게이션
+                    when (viewModel.selectedUserType.value) {
+                        UserType.OWNER -> {
+                            findNavController().navigate(R.id.action_loginFragment_to_sellerNavGraph)
+                        }
+                        UserType.DRIVER -> {
+                            findNavController().navigate(R.id.action_loginFragment_to_driverNavGraph)
+                        }
+                        else -> {
+                            // 기본적으로 소상공인 화면으로 이동
+                            findNavController().navigate(R.id.action_loginFragment_to_sellerNavGraph)
                         }
                     }
                 }
