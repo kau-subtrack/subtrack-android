@@ -115,19 +115,25 @@ class RegisterFragment : Fragment() {
             val id = binding.etId.text.toString()
             val password = binding.etPassword.text.toString()
             val passwordConfirm = binding.etPasswordConfirm.text.toString()
-            
+
             // 사용자 유형별 추가 정보
+            // 에 따른 회원가입 시행
             when (viewModel.selectedUserType.value) {
                 UserType.OWNER -> {
                     val businessNumber = binding.etBusinessNumber.text.toString()
                     val address = binding.etAddress.text.toString()
                     
+                    /*
+                     TODO(소상공인 회원가입 ui 변경점 추가)
+                    1. name 입력란 추가
+                    2. detailAddress 입력란 추가
+                    3. latitude 계산 후 추가 - 주소기준
+                    4. longitude 계산 후 추가 
+                     */ㅅ
                     viewModel.register(
-                        id = id,
-                        password = password,
-                        passwordConfirm = passwordConfirm,
-                        businessNumber = businessNumber,
-                        address = address
+                        id, password, "name", UserType.OWNER,
+                        address,
+                        detailAddress = "강남", latitude = 15.1, longitude = 15.1
                     )
                 }
                 UserType.DRIVER -> {
@@ -136,15 +142,13 @@ class RegisterFragment : Fragment() {
                     val drivingExperienceFile = "dummy_driving_experience_file"
                     val city = binding.spinnerCity.selectedItem?.toString() ?: ""
                     val district = binding.spinnerDistrict.selectedItem?.toString() ?: ""
-                    
+
+                    // TODO(phoneNumber, vehicleNumber 입력란 필요)
                     viewModel.register(
-                        id = id,
-                        password = password,
-                        passwordConfirm = passwordConfirm,
-                        city = city,
-                        district = district,
-                        transportLicenseFile = transportLicenseFile,
-                        drivingExperienceFile = drivingExperienceFile
+                        id, password, "name", UserType.DRIVER,
+                        null, null, null, null,
+                        phoneNumber = "010-0000-0000", vehicleNumber = "01가2345",
+                        city, district
                     )
                 }
                 else -> {
