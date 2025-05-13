@@ -25,7 +25,8 @@ class DriverMapFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // 초기화 및 UI 설정
+        
+        // 추후 지도 관련 설정이 필요한 경우 여기에 추가
     }
 
     override fun onDestroyView() {
