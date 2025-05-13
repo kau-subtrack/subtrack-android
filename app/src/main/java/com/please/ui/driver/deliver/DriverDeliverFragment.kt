@@ -4,32 +4,111 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
-import com.please.databinding.FragmentDriverDeliverBinding
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.please.R
+import com.please.data.models.driver.DeliveryRequest
+import com.please.data.repositories.DriverDataRepository
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class DriverDeliverFragment : Fragment() {
 
-    private var _binding: FragmentDriverDeliverBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var emptyView: TextView
+    private lateinit var adapter: DeliveryRequestAdapter
+    
+    // 데이터 리스트
+    private val deliveryItems = mutableListOf<DeliveryRequest>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentDriverDeliverBinding.inflate(inflater, container, false)
-        return binding.root
+    ): View? {
+        return inflater.inflate(R.layout.fragment_driver_deliver, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // 초기화 및 UI 설정
+        
+        try {
+            // 뷰 초기화
+            recyclerView = view.findViewById(R.id.rv_items)
+            emptyView = view.findViewById(R.id.tv_empty)
+            
+            // 리사이클러뷰 설정
+            recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            
+            // 데이터 로드
+            loadData()
+            
+            // 어댑터 설정
+            adapter = DeliveryRequestAdapter(deliveryItems) { position ->
+                try {
+                    // 배송 완료 버튼 클릭 처리
+                    if (position >= 0 && position < deliveryItems.size) {
+                        val item = deliveryItems[position]
+                        DriverDataRepository.removeDeliveryRequest(item.id)
+                        deliveryItems.removeAt(position)
+                        adapter.notifyItemRemoved(position)
+                        adapter.notifyItemRangeChanged(position, deliveryItems.size)
+                        updateEmptyState()
+                    }
+                } catch (e: Exception) {
+                    // 오류 처리
+                    e.printStackTrace()
+                }
+            }
+            
+            recyclerView.adapter = adapter
+            
+            // 초기 빈 상태 확인
+            updateEmptyState()
+        } catch (e: Exception) {
+            // 예외 처리
+            e.printStackTrace()
+        }
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    
+    private fun loadData() {
+        try {
+            // 데이터 리포지토리에서 데이터 가져오기
+            deliveryItems.clear()
+            deliveryItems.addAll(DriverDataRepository.getDeliveryRequests())
+        } catch (e: Exception) {
+            // 예외 처리
+            e.printStackTrace()
+        }
+    }
+    
+    private fun updateEmptyState() {
+        try {
+            if (deliveryItems.isEmpty()) {
+                recyclerView.visibility = View.GONE
+                emptyView.visibility = View.VISIBLE
+            } else {
+                recyclerView.visibility = View.VISIBLE
+                emptyView.visibility = View.GONE
+            }
+        } catch (e: Exception) {
+            // 예외 처리
+            e.printStackTrace()
+        }
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        try {
+            // 화면이 다시 표시될 때 데이터 갱신
+            loadData()
+            adapter.notifyDataSetChanged()
+            updateEmptyState()
+        } catch (e: Exception) {
+            // 예외 처리
+            e.printStackTrace()
+        }
     }
 }
