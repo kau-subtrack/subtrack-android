@@ -17,6 +17,15 @@
         android:textColor="#000000"
         android:textSize="20sp"
         android:textStyle="bold" />
+        
+    <TextView
+        android:id="@+id/tv_item_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="항목 수: 0개"
+        android:textColor="#666666"
+        android:textSize="14sp" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -25,7 +34,11 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_collection_requests"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="true"
+            android:clipToPadding="false"
+            android:paddingBottom="8dp" />
 
         <TextView
             android:id="@+id/tv_empty_collections"
