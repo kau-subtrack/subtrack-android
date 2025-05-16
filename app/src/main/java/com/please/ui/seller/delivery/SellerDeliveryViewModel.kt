@@ -1,12 +1,17 @@
 package com.please.ui.seller.delivery
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.please.data.models.seller.DeliveryInfo
 import com.please.data.models.seller.DeliveryStatus
+import com.please.data.repositories.AuthRepository
 import com.please.data.repositories.DeliveryRepository
+import com.please.data.repositories.SellerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -16,7 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SellerDeliveryViewModel @Inject constructor(
-    private val repository: DeliveryRepository
+    private val repository: DeliveryRepository,
+    private val repository_sell: SellerRepository
 ) : ViewModel() {
 
     enum class DeliveryMode {
@@ -45,6 +51,10 @@ class SellerDeliveryViewModel @Inject constructor(
     private var currentMonthList = listOf<Int>()
     private var currentDayList = listOf<Int>()
 
+
+    val token = AuthRepository.AppState.userToken ?: "none"
+
+    //초기 날짜 세팅 후 리스트 조회
     fun initializeDefaultDate() {
         if (_selectedDate.value != null) return
 
@@ -58,15 +68,18 @@ class SellerDeliveryViewModel @Inject constructor(
 
         _selectedDate.value = initialDate
         updateDateOptionsForMode(mode)
+
         loadDeliveries(initialDate)
     }
 
+    //등록, 조회 변경 시 리스트 재조회
     fun setMode(newMode: DeliveryMode) {
         if (_mode.value == newMode) return
         _mode.value = newMode
         _selectedDate.value?.let { loadDeliveries(it) }
     }
 
+    // 연도
     fun onYearSelected(position: Int) {
         val year = currentYearList.getOrNull(position) ?: return
         val selectedDate = Calendar.getInstance().apply { time = _selectedDate.value ?: Date() }
@@ -76,6 +89,7 @@ class SellerDeliveryViewModel @Inject constructor(
         updateDayOptions()
     }
 
+    // 월
     fun onMonthSelected(position: Int) {
         val month = currentMonthList.getOrNull(position) ?: return
         val selectedDate = Calendar.getInstance().apply { time = _selectedDate.value ?: Date() }
@@ -84,6 +98,7 @@ class SellerDeliveryViewModel @Inject constructor(
         updateDayOptions()
     }
 
+    // 일
     fun onDaySelected(position: Int) {
         val day = currentDayList.getOrNull(position) ?: return
         val selectedDate = Calendar.getInstance().apply { time = _selectedDate.value ?: Date() }
@@ -129,6 +144,7 @@ class SellerDeliveryViewModel @Inject constructor(
         _monthOptions.value = currentMonthList.map { "${it}월" }
     }
 
+    // 전체 날짜 수정
     fun updateDayOptions() {
         val now = Calendar.getInstance()
         val currentYear = now.get(Calendar.YEAR)
@@ -153,6 +169,7 @@ class SellerDeliveryViewModel @Inject constructor(
         _dayOptions.value = currentDayList.map { "${it}일" }
     }
 
+    // 날짜 선택 제한
     fun isValidDateSelection(year: Int, month: Int, day: Int): Boolean {
         val cal = Calendar.getInstance()
         val selected = Calendar.getInstance().apply {
@@ -180,6 +197,7 @@ class SellerDeliveryViewModel @Inject constructor(
         }
     }
 
+    //추가 관련
     fun onAddDeliveryClicked(): Date? {
         val date = _selectedDate.value ?: return null
         val cal = Calendar.getInstance().apply { time = date }
@@ -189,8 +207,27 @@ class SellerDeliveryViewModel @Inject constructor(
         return if (isValidDateSelection(y, m, d)) date else null
     }
 
+    // !!! 날짜 기반 리스트 가져오기 = 실제 사용값 _deliveryList. 고정 변수값 _repository내 return값.
     private fun loadDeliveries(date: Date) {
-        _deliveryList.value = repository.getDeliveriesByDate(date)
+        //해당 날짜 리스트 조회(서버 연동)
+        viewModelScope.launch {
+            try {
+                val response = repository_sell.shipmentDateView(token, date)
+                Log.d("Delivery/List", date.toString())
+                Log.d("Delivery/List", response.body().toString())
+
+                //성공시 리스트 생성 양식 기입
+                if (response.isSuccessful && response.body() != null) {
+                    //뷰에 보일 리스트 간추리기  / 해당 날짜 리스트 조회(서버 연동)
+                    _deliveryList.value =  repository.jsonDelivery(response.body()!!)// + repository.getDeliveriesByDate(date) //repository.getDeliveriesByDate(date) //메모리 내 리스트 추가 조회.
+                    //Log.d("Delivery/ListAll", _deliveryList.value.toString())
+                } else {
+                    Log.d("Delivery/ERROR" , "배송 내역이 없습니다.")
+                }
+            } catch (e: Exception) {
+                Log.d("Delivery/ERROR" , e.message.toString())
+            }
+        }
     }
 
     fun deleteDelivery(id: String) {
@@ -198,6 +235,7 @@ class SellerDeliveryViewModel @Inject constructor(
         _selectedDate.value?.let { loadDeliveries(it) }
     }
 
+    // 등록 추가
     fun addDelivery(trackingNumber: String, contactPhone: String, address: String) {
         val pickupDate = _selectedDate.value ?: Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, 1) }.time
 
@@ -217,6 +255,7 @@ class SellerDeliveryViewModel @Inject constructor(
         loadDeliveries(pickupDate)
     }
 
+    // 날짜 포맷
     fun formatDate(date: Date): String {
         val sdf = SimpleDateFormat("yyyy년 MM월 dd일", Locale.KOREA)
         return sdf.format(date)

@@ -8,10 +8,16 @@ import com.please.data.models.auth.RegisterResponse
 import com.please.data.models.auth.UserType
 import retrofit2.Response
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AuthRepository @Inject constructor(
     private val apiService: AuthApiService
 ) {
+    object AppState {
+        var userToken: String? = null
+    }
+
     suspend fun login(id: String, password: String, userType: UserType): Response<LoginResponse> {
         return apiService.login(LoginRequest(id, password, userType))
     }

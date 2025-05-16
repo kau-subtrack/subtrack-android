@@ -41,6 +41,7 @@ class DeliveryAdapter(
         private val binding: ItemDeliveryBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        //받은 deliveryInfo 양식으로 리사이클 아이템 생성
         fun bind(delivery: DeliveryInfo, isDeleteButtonVisible: Boolean) {
             val trackingNumber = delivery.trackingNumber ?: ""
             binding.tvTrackingNumber.text = trackingNumber

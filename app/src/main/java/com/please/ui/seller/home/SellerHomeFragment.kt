@@ -46,28 +46,29 @@ class SellerHomeFragment : Fragment() {
                 is SellerHomeViewModel.HomeInfoState.Success -> {
                     binding.progressBar.visibility = View.GONE
                     binding.contentLayout.visibility = View.VISIBLE
-                    
-                    val data = state.data
+
+                    //이중 data
+                    val data = state.data.data
                     
                     // 가게 위치 정보 설정
-                    binding.tvStoreAddress.text = data.storeInfo.address
+                    binding.tvStoreAddress.text = data.store.address //data.data.storeInfo storeInfo.address
                     
                     // 실제 앱에서는 지도 표시 로직 구현
                     // binding.mapView.setMapLocation(data.storeInfo.latitude, data.storeInfo.longitude)
                     
                     // 수거 날짜 설정
-                    binding.tvPickupDate.text = data.pickupInfo.date
+                    binding.tvPickupDate.text = data.pickupDate // data.pickupInfo.date
                     
                     // 배정 기사 정보 설정
-                    binding.tvCourierName.text = data.courierInfo.name
-                    binding.tvCourierPhone.text = data.courierInfo.phoneNumber
-                    binding.tvCourierCar.text = data.courierInfo.carNumber
+                    binding.tvCourierName.text = "1"//data.courierInfo.name
+                    binding.tvCourierPhone.text = "2" //data.courierInfo.phoneNumber
+                    binding.tvCourierCar.text = "3" //data.courierInfo.carNumber
                     
                     // 포인트 정보 설정
                     binding.tvPoints.text = data.points.toString()
                     
                     // 구독 정보 설정
-                    binding.tvSubscription.text = data.subscription
+                    binding.tvSubscription.text = data.subscriptionName
                 }
                 is SellerHomeViewModel.HomeInfoState.Error -> {
                     binding.progressBar.visibility = View.GONE
