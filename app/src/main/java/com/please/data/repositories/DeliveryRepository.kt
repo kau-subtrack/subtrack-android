@@ -1,10 +1,14 @@
 package com.please.data.repositories
 
+import android.util.Log
+import com.please.data.models.seller.DeliveryBaseResponse
 import com.please.data.models.seller.DeliveryInfo
 import com.please.data.models.seller.DeliveryStatus
-import com.please.data.models.seller.PackageSize
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.Calendar
 import java.util.Date
+import java.util.TimeZone
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,8 +27,11 @@ class DeliveryRepository @Inject constructor() {
         // 내일 날짜 가져오기
         val tomorrow = Calendar.getInstance()
         tomorrow.add(Calendar.DAY_OF_MONTH, 1)
-        
+
+        // 기존 deliveryList는 새로 등록한 내역만 기입
+
         // 샘플 데이터: 내일 날짜의 택배 몇 개
+        /*
         deliveryList.add(
             DeliveryInfo(
                 id = UUID.randomUUID().toString(),
@@ -39,35 +46,7 @@ class DeliveryRepository @Inject constructor() {
                 trackingNumber = "1234567890"
             )
         )
-        
-        deliveryList.add(
-            DeliveryInfo(
-                id = UUID.randomUUID().toString(),
-                productName = "의류",
-                recipientName = "김철수",
-                recipientPhone = "010-9876-5432",
-                address = "부산시 해운대구 우동",
-                pickupDate = tomorrow.time,
-                packageSize = PackageSize.SMALL,
-                status = DeliveryStatus.IN_PROGRESS,
-                trackingNumber = "9876543210"
-            )
-        )
-        
-        deliveryList.add(
-            DeliveryInfo(
-                id = UUID.randomUUID().toString(),
-                productName = "가구",
-                recipientName = "박영희",
-                recipientPhone = "010-5555-4444",
-                address = "인천시 연수구 송도동",
-                pickupDate = tomorrow.time,
-                packageSize = PackageSize.LARGE,
-                status = DeliveryStatus.IN_PROGRESS,
-                isCautionRequired = true,
-                trackingNumber = "5432167890"
-            )
-        )
+         */
     }
     
     // 특정 날짜의 모든 배송 정보 가져오기
@@ -78,13 +57,15 @@ class DeliveryRepository @Inject constructor() {
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
         val startDate = calendar.time
-        
+
         calendar.set(Calendar.HOUR_OF_DAY, 23)
         calendar.set(Calendar.MINUTE, 59)
         calendar.set(Calendar.SECOND, 59)
         calendar.set(Calendar.MILLISECOND, 999)
         val endDate = calendar.time
-        
+
+        // 이것. deliverList가 List. 해당 기록에 대한 것.
+        // 필터 날짜 List만 반환.
         return deliveryList.filter { 
             it.pickupDate.time >= startDate.time && it.pickupDate.time <= endDate.time 
         }
@@ -121,5 +102,60 @@ class DeliveryRepository @Inject constructor() {
             val updated = deliveryList[index].copy(status = status)
             deliveryList[index] = updated
         }
+    }
+
+    fun jsonDelivery(json: DeliveryBaseResponse): List<DeliveryInfo>{
+        val deliveryList = mutableListOf<DeliveryInfo>()
+        
+        //조회한 모든 내역 변경 - 백엔드 반환값을 프론트 deliveryinfo 형식으로 반환
+        val list = json.data
+        for(pack in list) {
+            val unit = DeliveryInfo(
+                id = UUID.randomUUID().toString(), // 사용 (프론트 고유 변수)
+                productName = pack.productName,
+                recipientName = pack.recipientName,
+                recipientPhone = "010-1234-5678", // TODO 미사용 - json 양식에 미기입 상태. 필요시 백엔드 수정
+                address = pack.recipientAddr,
+                detailAddress = pack.detailAddress,
+                pickupDate = dateFromStringFormat(pack.pickupScheduledDate),
+                packageSize = pack.size,
+                status = convertStatus(pack.status),
+                trackingNumber = pack.trackingCode
+            )
+            Log.d("Delivery/List_ADD", unit.trackingNumber.toString())
+            deliveryList.add(unit)
+        }
+
+        return deliveryList
+    }
+
+    fun dateFromStringFormat(pack: String): Date{
+        val dateString = pack // "2025-05-25T04:36:32.968Z"
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        formatter.timeZone = TimeZone.getTimeZone("UTC") // Z는 UTC 의미
+
+        val date: Date = formatter.parse(dateString)!!
+        //val zonedDateTime = ZonedDateTime.parse(dateString)
+        //val date: Date = Date.from(zonedDateTime.toInstant())
+        //val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
+        return date
+    }
+
+    // 현재 데이터 상 분류가 총 6개로 나뉨...
+    // 해당 분류를 프론트 기존 형식으로 임의 분류
+    fun convertStatus(dataStatus: String): DeliveryStatus{
+        /*
+            PENDING_PICKUP       // 수거 전
+            IN_PICKUP            // 수거 중
+            PICKUP_COMPLETED     // 수거 완료
+            PENDING_DELIVERY     // 배송 전
+            IN_DELIVERY          // 배송 중
+            DELIVERY_COMPLETED   // 배송 완료
+        */
+        if(dataStatus == "PENDING_PICKUP" || dataStatus == "IN_PICKUP") return DeliveryStatus.PENDING
+        if(dataStatus == "PICKUP_COMPLETED" || dataStatus == "PENDING_DELIVERY" || dataStatus == "IN_DELIVERY" ) return DeliveryStatus.IN_PROGRESS
+        if(dataStatus == "DELIVERY_COMPLETED") return DeliveryStatus.DELIVERED
+
+        return DeliveryStatus.PENDING
     }
 }

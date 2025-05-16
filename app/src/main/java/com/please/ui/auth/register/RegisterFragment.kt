@@ -129,7 +129,7 @@ class RegisterFragment : Fragment() {
                     2. detailAddress 입력란 추가
                     3. latitude 계산 후 추가 - 주소기준
                     4. longitude 계산 후 추가 
-                     */ㅅ
+                     */
                     viewModel.register(
                         id, password, "name", UserType.OWNER,
                         address,

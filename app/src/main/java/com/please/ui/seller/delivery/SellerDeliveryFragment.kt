@@ -57,6 +57,7 @@ class SellerDeliveryFragment : Fragment() {
         }
     }
 
+    //배송 상태 업데이트
     private fun setupRecyclerView() {
         deliveryAdapter = DeliveryAdapter(
             onDeleteClick = { id -> showDeleteConfirmDialog(id) },
@@ -76,24 +77,30 @@ class SellerDeliveryFragment : Fragment() {
             }
         )
 
+        //list 적용
         binding.rvDeliveries.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = deliveryAdapter
         }
     }
 
+    //조회 리스트 목차 변경
     private fun setupModeButtons() {
         binding.btnRegister.setOnClickListener {
+            //등록한 내역 조회. 기준 : 픽업 날짜 - 모든 내역.  //생성한 날짜에 조회가 된다.
+            // TODO (list에서 삭제기능. 백엔드 기능구현과 연동 필요?) //기존에 없던 기능.
             viewModel.setMode(SellerDeliveryViewModel.DeliveryMode.REGISTER)
         }
 
         binding.btnView.setOnClickListener {
             if (viewModel.mode.value != SellerDeliveryViewModel.DeliveryMode.VIEW) {
+                //조회. 상태무관. - 위 register와 거의 차이없음...
                 viewModel.setMode(SellerDeliveryViewModel.DeliveryMode.VIEW)
             }
         }
     }
 
+    // 날짜.
     private fun setupObservers() {
         viewModel.yearOptions.observe(viewLifecycleOwner) { years ->
             val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, years)
@@ -125,6 +132,7 @@ class SellerDeliveryFragment : Fragment() {
 
         viewModel.mode.observe(viewLifecycleOwner) { mode ->
             when (mode) {
+
                 SellerDeliveryViewModel.DeliveryMode.REGISTER -> {
                     binding.btnRegister.setBackgroundResource(R.drawable.bg_button_selected)
                     binding.btnRegister.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
@@ -146,12 +154,14 @@ class SellerDeliveryFragment : Fragment() {
             }
         }
 
+        //viewModel의 list를 adapter에 적용
         viewModel.deliveryList.observe(viewLifecycleOwner) { deliveries ->
             deliveryAdapter.submitList(deliveries)
             binding.tvEmptyMessage.visibility = if (deliveries.isEmpty()) View.VISIBLE else View.GONE
         }
     }
 
+    // 날짜.
     private fun setupSpinnerListeners() {
         binding.spinnerYear.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -182,6 +192,7 @@ class SellerDeliveryFragment : Fragment() {
         }
     }
 
+    //택배 수동 삭제
     private fun showDeleteConfirmDialog(deliveryId: String) {
         AlertDialog.Builder(requireContext())
             .setTitle("택배 삭제")

@@ -28,3 +28,21 @@ data class DeliveryInfo(
     val isCautionRequired: Boolean = false, // 취급주의 여부
     val trackingNumber: String? = null // 운송장 번호 (시스템에서 자동 생성될 수 있음)
 )
+
+data class ComTrackPack(
+    val trackingCode: String,
+    val recipientName: String,
+    val recipientAddr: String,
+    val detailAddress: String,
+    val productName: String,
+    val status: String, //enum 이면 좋은데... 스키마 양식이 바뀜
+    val deliveryCompletedAt: String,
+    val pickupScheduledDate: String,
+    val size: PackageSize
+)
+
+data class DeliveryBaseResponse(
+    val status: Boolean,
+    val date: String,
+    val data: List<ComTrackPack>
+)
