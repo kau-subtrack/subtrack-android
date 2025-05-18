@@ -117,7 +117,7 @@ class DeliveryRepository @Inject constructor() {
                 recipientPhone = "010-1234-5678", // TODO 미사용 - json 양식에 미기입 상태. 필요시 백엔드 수정
                 address = pack.recipientAddr,
                 detailAddress = pack.detailAddress,
-                pickupDate = dateFromStringFormat(pack.pickupScheduledDate),
+                pickupDate = pack.pickupScheduledDate,
                 packageSize = pack.size,
                 status = convertStatus(pack.status),
                 trackingNumber = pack.trackingCode
@@ -129,6 +129,7 @@ class DeliveryRepository @Inject constructor() {
         return deliveryList
     }
 
+    /*
     fun dateFromStringFormat(pack: String): Date{
         val dateString = pack // "2025-05-25T04:36:32.968Z"
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
@@ -140,6 +141,7 @@ class DeliveryRepository @Inject constructor() {
         //val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
         return date
     }
+     */
 
     // 현재 데이터 상 분류가 총 6개로 나뉨...
     // 해당 분류를 프론트 기존 형식으로 임의 분류

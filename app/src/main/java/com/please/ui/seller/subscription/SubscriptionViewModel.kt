@@ -1,9 +1,12 @@
 package com.please.ui.seller.subscription
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.please.data.models.SubscriptionPlan
+import com.please.data.models.seller.PlanId
+import com.please.data.repositories.AuthRepository
 import com.please.data.repositories.SubscriptionRepository
+import com.please.ui.auth.register.RegisterViewModel.RegisterState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +22,8 @@ class SubscriptionViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SubscriptionUiState())
     val uiState: StateFlow<SubscriptionUiState> = _uiState.asStateFlow()
-    
+
+
     private var selectedPlanId: Int = 0
 
     fun selectPlan(planId: Int) {
@@ -28,30 +32,41 @@ class SubscriptionViewModel @Inject constructor(
 
     fun subscribeToPlan() {
         if (selectedPlanId <= 0) return
+
+        val token = AuthRepository.AppState.userToken ?: "none"
         
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            
-            repository.subscribeToPlan(selectedPlanId).fold(
-                onSuccess = { response ->
-                    _uiState.update { 
+            try {
+                _uiState.update { it.copy(isLoading = true) }
+
+                val response = repository.registerShipment(token, PlanId(selectedPlanId))
+                if (response.isSuccessful && response.body() != null) {
+                    val subscriptionResponse = response.body()
+                    Log.d("Subscribe/ADD", subscriptionResponse.toString())
+                    Log.d("Subscribe/ADD", response.body().toString())
+
+                    _uiState.update {
                         it.copy(
                             isLoading = false,
                             message = "구독이 성공적으로 신청되었습니다.",
                             isSuccess = true
                         )
                     }
-                },
-                onFailure = { error ->
-                    _uiState.update { 
-                        it.copy(
-                            isLoading = false,
-                            message = error.message ?: "구독 신청에 실패했습니다.",
-                            isSuccess = false
-                        )
-                    }
+
+                } else {
+                    Log.d("Subscribe/ERROR" , "구독에 실패하였습니다.")
                 }
-            )
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        message = "구독 신청에 실패했습니다.",
+                        isSuccess = false
+                    )
+                }
+                Log.d("Subscribe/ERROR2" , e.message.toString())
+            }
+
         }
     }
 

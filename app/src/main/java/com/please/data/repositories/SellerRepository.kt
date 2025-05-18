@@ -2,6 +2,8 @@ package com.please.data.repositories
 
 import com.please.data.api.SellerProfileApi
 import com.please.data.models.seller.DeliveryBaseResponse
+import com.please.data.models.seller.RegisterDelivery
+import com.please.data.models.seller.RegisterDeliveryResponse
 import com.please.data.models.seller.SellerHomeInfo
 import javax.inject.Inject
 import retrofit2.Response
@@ -41,6 +43,14 @@ class SellerRepository @Inject constructor(
 
         return ownerService.shipmentList("Bearer $token", params)
     }
+
+    suspend fun registerShipment(token: String, delivery: RegisterDelivery): Response<RegisterDeliveryResponse>{
+        return ownerService.shipmentRegister("Bearer $token", delivery)
+    }
+
+
+
+
 
     /*
     suspend fun login(id: String, password: String, userType: UserType): Response<LoginResponse> {
