@@ -28,6 +28,25 @@ data class DeliveryInfo(
     val isCautionRequired: Boolean = false, // 취급주의 여부
     val trackingNumber: String? = null // 운송장 번호 (시스템에서 자동 생성될 수 있음)
 )
+data class RegisterDelivery(
+    val productName: String,
+    val recipientName: String,
+    val recipientPhone: String,
+    val recipientAddr: String, // 배송 주소
+    val detailAddress: String? = null, // 상세 주소
+    val size: PackageSize,
+    val caution: Boolean,
+    val pickupScheduledDate: String, // 수거 날짜
+    //val isCautionRequired: Boolean = false, // 취급주의 여부
+    //val trackingNumber: String? = null
+)
+
+data class RegisterDeliveryResponse(
+    val status: Boolean,
+    val message: String,
+    val parcelId: Int, // 기입된 고유 번호. 쓸일이 있을진 모르겠네.
+    val usedPoints: Int
+)
 
 data class ComTrackPack(
     val trackingCode: String,
@@ -36,8 +55,8 @@ data class ComTrackPack(
     val detailAddress: String,
     val productName: String,
     val status: String, //enum 이면 좋은데... 스키마 양식이 바뀜
-    val deliveryCompletedAt: String,
-    val pickupScheduledDate: String,
+    val deliveryCompletedAt: Date, //반환 문제가 있다면, String으로 바꾸고, viewmodel에서 formatDate 함수로 변경반환
+    val pickupScheduledDate: Date,
     val size: PackageSize
 )
 
