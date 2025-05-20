@@ -100,7 +100,13 @@
             android:id="@+id/sellerManualFragment"
             android:name="com.please.ui.seller.manual.SellerManualFragment"
             android:label="SellerManualFragment"
-            tools:layout="@layout/fragment_seller_manual" />
+            tools:layout="@layout/fragment_seller_manual">
+            <action
+                android:id="@+id/action_sellerManualFragment_to_loginFragment"
+                app:destination="@id/loginFragment"
+                app:popUpTo="@id/nav_graph"
+                app:popUpToInclusive="true" />
+        </fragment>
     </navigation>
 
     <navigation
@@ -121,6 +127,11 @@
             <action
                 android:id="@+id/action_driverHomeFragment_to_driverMapFragment"
                 app:destination="@id/driverMapFragment" />
+            <action
+                android:id="@+id/action_driverHomeFragment_to_loginFragment"
+                app:destination="@id/loginFragment"
+                app:popUpTo="@id/nav_graph"
+                app:popUpToInclusive="true" />
         </fragment>
             
         <fragment

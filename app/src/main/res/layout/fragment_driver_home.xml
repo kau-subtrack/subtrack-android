@@ -7,6 +7,20 @@
     android:background="#F5F5F5"
     tools:context=".ui.driver.home.DriverHomeFragment">
 
+    <!-- 로그아웃 버튼 -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnLogout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="16dp"
+        android:text="로그아웃"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:backgroundTint="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+        
     <!-- 담당 위치 -->
     <TextView
         android:id="@+id/tvLocationLabel"

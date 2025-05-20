@@ -29,4 +29,9 @@ class AuthRepository @Inject constructor(
     suspend fun checkIdDuplicate(id: String): Response<Boolean> {
         return apiService.checkIdDuplicate(id)
     }
+    
+    fun logout() {
+        // 토큰 제거
+        AppState.userToken = null
+    }
 }

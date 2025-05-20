@@ -454,5 +454,18 @@
                     android:textColor="#555555" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+        
+        <!-- 로그아웃 버튼 -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:text="로그아웃"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:backgroundTint="#000000" />
     </LinearLayout>
 </ScrollView>

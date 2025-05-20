@@ -7,9 +7,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.please.R
+import com.please.data.repositories.AuthRepository
 import com.please.databinding.FragmentDriverHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class DriverHomeFragment : Fragment() {
@@ -18,6 +22,9 @@ class DriverHomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: DriverHomeViewModel by viewModels()
+    
+    @Inject
+    lateinit var authRepository: AuthRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,6 +39,21 @@ class DriverHomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         setupObservers()
+        setupLogoutButton()
+    }
+    
+    private fun setupLogoutButton() {
+        binding.btnLogout.setOnClickListener {
+            logout()
+        }
+    }
+    
+    private fun logout() {
+        // 로그아웃 처리: 토큰 제거
+        authRepository.logout()
+        
+        // 로그인 화면으로 이동
+        findNavController().navigate(R.id.action_driverHomeFragment_to_loginFragment)
     }
 
     private fun setupObservers() {

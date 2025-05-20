@@ -5,14 +5,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.please.R
+import com.please.data.repositories.AuthRepository
 import com.please.databinding.FragmentSellerManualBinding
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SellerManualFragment : Fragment() {
 
     private var _binding: FragmentSellerManualBinding? = null
     private val binding get() = _binding!!
+    
+    @Inject
+    lateinit var authRepository: AuthRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,8 +33,22 @@ class SellerManualFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        // 필요한 경우 여기에 추가적인 설정 코드를 넣을 수 있습니다.
-        // 예: 전화번호 클릭 이벤트, 특정 섹션 자세히 보기 등
+        // 로그아웃 버튼 클릭 리스너 설정
+        setupLogoutButton()
+    }
+    
+    private fun setupLogoutButton() {
+        binding.btnLogout.setOnClickListener {
+            logout()
+        }
+    }
+    
+    private fun logout() {
+        // 로그아웃 처리: 토큰 제거
+        authRepository.logout()
+        
+        // 로그인 화면으로 이동
+        findNavController().navigate(R.id.action_sellerManualFragment_to_loginFragment)
     }
 
     override fun onDestroyView() {
