@@ -65,13 +65,15 @@ class SellerHomeFragment : Fragment(), OnMapReadyCallback {
 
                     //이중 data
                     val data = state.data.data
-                    
+                    val storeLocation = data.store.address + " " + data.store.detailAddress
+
                     // 가게 위치 정보 설정
-                    binding.tvStoreAddress.text = data.store.address //data.data.storeInfo storeInfo.address
-                    
-                    // 실제 앱에서는 지도 표시 로직 구현
-                    // binding.mapView.setMapLocation(data.storeInfo.latitude, data.storeInfo.longitude)
-                    
+                    binding.tvStoreAddress.text = storeLocation //data.data.storeInfo storeInfo.address
+
+                    // 지도 설정
+                    //val address = "서울특별시" //하드코딩
+                    viewModel.loadMaps(storeLocation)
+
                     // 수거 날짜 설정
                     binding.tvPickupDate.text = data.pickupDate // data.pickupInfo.date
                     
@@ -86,9 +88,6 @@ class SellerHomeFragment : Fragment(), OnMapReadyCallback {
                     // 구독 정보 설정
                     binding.tvSubscription.text = data.subscriptionName
 
-                    // 지도 설정
-                    val address = "서울특별시" //하드코딩
-                    viewModel.loadMaps(address)
                 }
                 is SellerHomeViewModel.HomeInfoState.Error -> {
                     binding.progressBar.visibility = View.GONE
@@ -119,17 +118,21 @@ class SellerHomeFragment : Fragment(), OnMapReadyCallback {
             findNavController().navigate(R.id.action_sellerHomeFragment_to_chatbotFragment)
         }
     }
-
+    
+    //기본 지도 로딩
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
         mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultSeoulLocation, 15f))
+        /*
         mMap?.addMarker(MarkerOptions()
             .position(defaultSeoulLocation)
             .title("현재 위치")
             .snippet("서울특별시"))
+         */
     }
 
+    //위치 변경 및 마커 추가
     private fun updateMapLocation(latLng: LatLng, address: String) {
         mMap?.clear()
         mMap?.addMarker(MarkerOptions().position(latLng).title(address))

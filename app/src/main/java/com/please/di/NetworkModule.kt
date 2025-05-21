@@ -18,7 +18,7 @@ import javax.inject.Singleton
 //const val BASE_URL = "http://43.200.131.230:3000/"
 //const val  BASE_URL = "http://web-alb-subtrack-462963304.ap-northeast-2.elb.amazonaws.com/"
 const val BASE_URL = "https://vw0y369jm5.execute-api.ap-northeast-2.amazonaws.com/Subtrack/"
-const val BASE_URL_GEOMERTY = "https://api.example.com/"
+const val BASE_URL_GEOMERTY = "https://maps.googleapis.com/"
 const val BASE_URL_PATH_AI = "https://api.example.com/"
 const val BASE_URL_CHAT_AI = "https://api.example.com/"
 

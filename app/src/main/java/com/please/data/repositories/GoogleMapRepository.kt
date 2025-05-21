@@ -27,7 +27,6 @@ class GoogleMapRepository @Inject constructor(
     suspend fun searchAddress(address: String) : LocationResult {
         val apiKey = "AIzaSyBbf7RzN2iMRMo_XsFRU00bH6JX4GziByg" // 하드코딩된 apikey_gme
         Log.d("MAP/SEARCH", address)
-        //TODO request자체에서 문제가 있음. ㅇㅇ.
         val response = googleApi.getLatLngFromAddress(address, apiKey)
 
         if (response.status == "OK" && response.results.isNotEmpty()) {
