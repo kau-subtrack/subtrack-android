@@ -1,6 +1,8 @@
 package com.please.ui.seller.home
 
 import android.os.Bundle
+import android.os.Debug
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,16 +10,26 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.please.R
+import com.please.data.repositories.LocationResult
 import com.please.databinding.FragmentSellerHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class SellerHomeFragment : Fragment() {
+class SellerHomeFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentSellerHomeBinding? = null
     private val binding get() = _binding!!
-    
+
+    private var mMap: GoogleMap? = null
+    private val defaultSeoulLocation = LatLng(37.5665, 126.9780) //지도 기본 위치 - 서울특별시
+
     private val viewModel: SellerHomeViewModel by viewModels()
 
     override fun onCreateView(
@@ -31,12 +43,16 @@ class SellerHomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
         setupObservers()
         setupListeners()
     }
     
     private fun setupObservers() {
+        //홈 화면 내역 로딩
         viewModel.homeInfoState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is SellerHomeViewModel.HomeInfoState.Loading -> {
@@ -69,6 +85,10 @@ class SellerHomeFragment : Fragment() {
                     
                     // 구독 정보 설정
                     binding.tvSubscription.text = data.subscriptionName
+
+                    // 지도 설정
+                    val address = "서울특별시" //하드코딩
+                    viewModel.loadMaps(address)
                 }
                 is SellerHomeViewModel.HomeInfoState.Error -> {
                     binding.progressBar.visibility = View.GONE
@@ -77,14 +97,43 @@ class SellerHomeFragment : Fragment() {
                 }
             }
         }
+
+        //지도 화면 로딩
+        viewModel.locationResult.observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is LocationResult.Success -> {
+                    updateMapLocation(result.latLng, result.address)
+                }
+                is LocationResult.Error -> {
+                    Toast.makeText(context, "${result.message}\n주소가 잘못 되었습니다.", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+        }
     }
-    
+
     private fun setupListeners() {
         // 챗봇 버튼 클릭 이벤트
         binding.fabChatbot.setOnClickListener {
             // 챗봇 화면으로 이동
             findNavController().navigate(R.id.action_sellerHomeFragment_to_chatbotFragment)
         }
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+
+        mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultSeoulLocation, 15f))
+        mMap?.addMarker(MarkerOptions()
+            .position(defaultSeoulLocation)
+            .title("현재 위치")
+            .snippet("서울특별시"))
+    }
+
+    private fun updateMapLocation(latLng: LatLng, address: String) {
+        mMap?.clear()
+        mMap?.addMarker(MarkerOptions().position(latLng).title(address))
+        mMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
     }
 
     override fun onDestroyView() {
