@@ -1,52 +1,71 @@
 package com.please.ui.driver.home
 
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.please.data.models.driver.DriverHomeResponse
+import com.please.data.repositories.AuthRepository
+import com.please.data.repositories.DriverRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DriverHomeViewModel @Inject constructor() : ViewModel() {
+class DriverHomeViewModel @Inject constructor(
+    private val repository: DriverRepository
+) : ViewModel() {
 
-    // UI 상태를 관리하는 StateFlow
-    private val _uiState = MutableStateFlow(DriverHomeUiState())
-    val uiState: StateFlow<DriverHomeUiState> = _uiState.asStateFlow()
+    private val _homeInfoState = MutableLiveData<HomeInfoState>()
+    val homeInfoState: LiveData<HomeInfoState> = _homeInfoState
 
     init {
-        loadDriverHomeData()
+        val token = AuthRepository.AppState.userToken ?: "none"
+        loadHomeInfo(token)
     }
 
-    private fun loadDriverHomeData() {
+    private fun loadHomeInfo(token: String) {
+        if(token == "none") Log.d("DRIVER_HOME/CALL/ERROR", "none")
+
+        _homeInfoState.value = HomeInfoState.Loading
+
         viewModelScope.launch {
-            // 실제 API 호출 없이 임시 데이터 설정
-            _uiState.value = DriverHomeUiState(
-                isLoading = false,
-                region = "서울시 강남구 역삼동",
-                monthlyPickupCount = 12,
-                monthlyDeliveryCount = 8,
-                monthlyTotalCount = 20,
-                todayPickupCount = 3,
-                todayDeliveryCount = 2,
-                points = 300,
-                error = null
-            )
+            Log.d("DRIVER_HOME/CALL", token)
+            try {
+                // API 호출
+                val response = repository.getDriverHome(token)
+                Log.d("DRIVER_HOME/CALL", token)
+                Log.d("DRIVER_HOME/CALL", response.body().toString())
+
+                // 성공 시, res body 반환
+                if (response.isSuccessful && response.body() != null) {
+                    _homeInfoState.value = HomeInfoState.Success(response.body()!!)
+                } else {
+                    val errorMessage = when (response.code()) {
+                        401 -> "인증에 실패했습니다. 다시 로그인해주세요."
+                        404 -> "등록된 기사 정보가 없습니다."
+                        else -> "홈화면 조회에 실패했습니다: ${response.message()} (${response.code()})"
+                    }
+                    _homeInfoState.value = HomeInfoState.Error(errorMessage)
+                }
+            } catch (e: Exception) {
+                Log.d("DRIVER_HOME/CALL", e.message.toString())
+                _homeInfoState.value = HomeInfoState.Error("홈화면 조회에 실패했습니다: ${e.message}")
+            }
         }
     }
-}
 
-// UI 상태를 나타내는 데이터 클래스
-data class DriverHomeUiState(
-    val isLoading: Boolean = true,
-    val region: String = "",
-    val monthlyPickupCount: Int = 0,
-    val monthlyDeliveryCount: Int = 0,
-    val monthlyTotalCount: Int = 0,
-    val todayPickupCount: Int = 0,
-    val todayDeliveryCount: Int = 0,
-    val points: Int = 0,
-    val error: String? = null
-)
+    // 데이터 새로고침
+    fun refreshData() {
+        val token = AuthRepository.AppState.userToken ?: "none"
+        loadHomeInfo(token)
+    }
+
+    // 홈 정보 상태를 나타내는 sealed class
+    sealed class HomeInfoState {
+        object Loading : HomeInfoState()
+        data class Success(val data: DriverHomeResponse) : HomeInfoState()
+        data class Error(val message: String) : HomeInfoState()
+    }
+}
