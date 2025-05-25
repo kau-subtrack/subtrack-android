@@ -5,8 +5,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.please.R
 import com.please.data.models.seller.SellerHomeInfo
 import com.please.data.repositories.AuthRepository
+import com.please.data.repositories.GoogleMapRepository
+import com.please.data.repositories.LocationResult
 import com.please.data.repositories.SellerRepository
 import com.please.ui.auth.login.LoginViewModel.LoginState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,13 +18,20 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SellerHomeViewModel @Inject constructor(
-    private val repository: SellerRepository
+    private val repository: SellerRepository,
+    private val repository_map: GoogleMapRepository
 ) : ViewModel() {
 
     private val _homeInfoState = MutableLiveData<HomeInfoState>()
     val homeInfoState: LiveData<HomeInfoState> = _homeInfoState
 
-    //fragement를 만들때 시행되어야하지 않음? 이게 문제라고 보는데.
+    private val _locationResult = MutableLiveData<LocationResult>()
+    val locationResult: LiveData<LocationResult> = _locationResult
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+
     init {
         val token = AuthRepository.AppState.userToken ?: "none"
         loadHomeInfo(token)
@@ -52,6 +62,21 @@ class SellerHomeViewModel @Inject constructor(
             }
         }
 
+    }
+
+    //지도 로드
+    fun loadMaps(address: String) {
+        Log.d("MAP/CALL" , address)
+        viewModelScope.launch {
+            try {
+                //getString(R.string.google_maps_key)
+                val list = repository_map.searchAddress(address)
+                Log.d("MAP/CALL" , list.toString())
+                _locationResult.value = list
+            } catch (e: Exception) {
+                // 예외 처리
+            }
+        }
     }
 
     // 홈 정보 상태를 나타내는 sealed class
