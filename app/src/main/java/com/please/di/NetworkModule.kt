@@ -1,6 +1,8 @@
 package com.please.di
 
+import android.util.Log
 import com.please.data.api.AuthApiService
+import com.please.data.api.DriverApiService
 import com.please.data.api.GoogleMapApi
 import com.please.data.api.SellerProfileApi
 import com.please.data.api.SubscriptionApi
@@ -8,6 +10,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
@@ -28,10 +32,24 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideOkHttpClient(): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor { message ->
+            Log.d("API_CALL", message)
+        }
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+
+        return OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .build()
+    }
+
+    @Provides
+    @Singleton
     @Named("default")
-    fun provideRetrofit(): Retrofit {
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL) // 임시 URL
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -52,6 +70,12 @@ object NetworkModule {
     @Singleton
     fun provideSellerProfileApi(@Named("default") retrofit: Retrofit): SellerProfileApi {
         return retrofit.create(SellerProfileApi::class.java)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideDriverApiService(@Named("default") retrofit: Retrofit): DriverApiService {
+        return retrofit.create(DriverApiService::class.java)
     }
 
     @Provides
