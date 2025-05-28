@@ -4,6 +4,8 @@ import android.util.Log
 import com.please.data.api.AuthApiService
 import com.please.data.api.DriverApiService
 import com.please.data.api.GoogleMapApi
+import com.please.data.api.PathAiDeliveryApi
+import com.please.data.api.PathAiPickupApi
 import com.please.data.api.SellerProfileApi
 import com.please.data.api.SubscriptionApi
 import dagger.Module
@@ -23,7 +25,8 @@ import javax.inject.Singleton
 //const val  BASE_URL = "http://web-alb-subtrack-462963304.ap-northeast-2.elb.amazonaws.com/"
 const val BASE_URL = "https://vw0y369jm5.execute-api.ap-northeast-2.amazonaws.com/Subtrack/"
 const val BASE_URL_GEOMERTY = "https://maps.googleapis.com/"
-const val BASE_URL_PATH_AI = "https://api.example.com/"
+const val BASE_URL_PATH_AI = "https://vw0y369jm5.execute-api.ap-northeast-2.amazonaws.com/Subtrack/optimal/" //api to optimal
+const val BASE_URL_PATH_RAW_AI = "http://ec2-43-200-131-230.ap-northeast-2.compute.amazonaws.com:5000/api/" //api.
 const val BASE_URL_CHAT_AI = "https://api.example.com/"
 
 @Module
@@ -71,7 +74,7 @@ object NetworkModule {
     fun provideSellerProfileApi(@Named("default") retrofit: Retrofit): SellerProfileApi {
         return retrofit.create(SellerProfileApi::class.java)
     }
-    
+
     @Provides
     @Singleton
     fun provideDriverApiService(@Named("default") retrofit: Retrofit): DriverApiService {
@@ -102,6 +105,28 @@ object NetworkModule {
             .baseUrl(BASE_URL_PATH_AI)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun providePathAiApi(@Named("path") retrofit: Retrofit): PathAiDeliveryApi {
+        return retrofit.create(PathAiDeliveryApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    @Named("path_raw")
+    fun providePathAiRawRetrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL_PATH_RAW_AI)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun providePathAiRawApi(@Named("path_raw") retrofit: Retrofit): PathAiPickupApi {
+        return retrofit.create(PathAiPickupApi::class.java)
     }
 
     @Provides
