@@ -1,6 +1,7 @@
 package com.please.data.api
 
-import com.please.data.models.driver.DeliveryComRequest
+import com.please.data.models.driver.AiDeliveryComRequest
+import com.please.data.models.driver.AiDeliveryComResponse
 import com.please.data.models.driver.DeliveryComResponse
 import com.please.data.models.driver.HealthResponse
 import com.please.data.models.driver.PathAiNextResponse
@@ -16,7 +17,7 @@ interface PathAiDeliveryApi {
     suspend fun getDeliveryNext(@Header("authorization") authorization: String): Response<PathAiNextResponse>
 
     @POST("delivery/complete")
-    suspend fun postDeliveryComplete(@Header("authorization") authorization: String, @Body id: DeliveryComRequest): Response<DeliveryComResponse>
+    suspend fun postDeliveryComplete(@Header("authorization") authorization: String, @Body id: AiDeliveryComRequest): Response<AiDeliveryComResponse>
 
     @GET("delivery/status")
     suspend fun getDelStatus(): Response<HealthResponse>
