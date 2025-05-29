@@ -140,8 +140,10 @@ class RegisterFragment : Fragment() {
                     // 실제 구현에서는 파일 업로드 로직이 필요하지만, 지금은 더미 데이터 사용
                     val transportLicenseFile = "dummy_transport_license_file"
                     val drivingExperienceFile = "dummy_driving_experience_file"
-                    val city = binding.spinnerCity.selectedItem?.toString() ?: ""
-                    val district = binding.spinnerDistrict.selectedItem?.toString() ?: ""
+                    // val city = binding.spinnerCity.selectedItem?.toString() ?: ""
+                    // val district = binding.spinnerDistrict.selectedItem?.toString() ?: ""
+                    val city = "" // TODO: 근무 희망 지역 선택 UI 복원 필요
+                    val district = "" // TODO: 근무 희망 지역 선택 UI 복원 필요
 
                     // TODO(phoneNumber, vehicleNumber 입력란 필요)
                     viewModel.register(

@@ -103,32 +103,15 @@
                 android:textColor="@color/black"
                 android:textSize="16sp" />
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/et_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/et_address"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_button_unselected"
-                    android:hint="주소를 입력하세요"
-                    android:inputType="text"
-                    android:padding="12dp"
-                    android:focusable="false"/>
-
-                <Button
-                    android:id="@+id/btn_address_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="8dp"
-                    android:text="검색"
-                    android:textColor="@color/white"
-                    android:backgroundTint="@color/black" />
-            </LinearLayout>
+                android:background="@drawable/bg_button_unselected"
+                android:hint="주소를 입력하세요"
+                android:inputType="text"
+                android:padding="12dp" />
 
             <EditText
                 android:id="@+id/et_detail_address"

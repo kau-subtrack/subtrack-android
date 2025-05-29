@@ -130,103 +130,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-
-                <!-- 배정 기사 정보 -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="4dp">
-
-                    <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="16dp">
-
-                        <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="배정 기사 정보"
-                                android:textColor="@color/black"
-                                android:textSize="18sp"
-                                android:textStyle="bold"/>
-
-                        <!-- 기사 이름 -->
-                        <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="12dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                            <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:layout_marginEnd="8dp"
-                                    android:src="@drawable/ic_person"
-                                    android:contentDescription="사람 아이콘"/>
-
-                            <TextView
-                                    android:id="@+id/tv_courier_name"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="이재혁"
-                                    android:textColor="@color/black"
-                                    android:textSize="16sp"/>
-                        </LinearLayout>
-
-                        <!-- 전화번호 -->
-                        <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                            <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:layout_marginEnd="8dp"
-                                    android:src="@drawable/ic_phone"
-                                    android:contentDescription="전화 아이콘"/>
-
-                            <TextView
-                                    android:id="@+id/tv_courier_phone"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="010-1234-5678"
-                                    android:textColor="@color/black"
-                                    android:textSize="16sp"/>
-                        </LinearLayout>
-
-                        <!-- 차량 번호 -->
-                        <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                            <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:layout_marginEnd="8dp"
-                                    android:src="@drawable/ic_car"
-                                    android:contentDescription="차량 아이콘"/>
-
-                            <TextView
-                                    android:id="@+id/tv_courier_car"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="서울 12가 3456"
-                                    android:textColor="@color/black"
-                                    android:textSize="16sp"/>
-                        </LinearLayout>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
                 <!-- 보유 포인트 -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
@@ -338,6 +241,28 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="72dp"
         app:tint="@color/white" />
+
+    <!-- 로그아웃 버튼 -->
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_margin="16dp"
+        android:backgroundTint="@android:color/black"
+        android:text="로그아웃"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:cornerRadius="4dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="72dp" />
 
     <!-- 로딩 프로그레스바 -->
     <ProgressBar
