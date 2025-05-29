@@ -29,7 +29,7 @@ class LoginViewModel @Inject constructor(
     fun setUserType(userType: UserType) {
         _selectedUserType.value = userType
     }
-
+/*
     fun login(id: String, password: String) {
         if (id.isEmpty() || password.isEmpty()) {
             _loginState.value = LoginState.Error("아이디와 비밀번호를 입력해주세요.")
@@ -58,9 +58,9 @@ class LoginViewModel @Inject constructor(
                 _loginState.value = LoginState.Error("로그인에 실패했습니다: ${e.message}")
             }
         }
-    }
+    }*/
 
-/*
+
     fun login(id: String, password: String) {
         if (id.isEmpty() || password.isEmpty()) {
             _loginState.value = LoginState.Error("아이디와 비밀번호를 입력해주세요.")
@@ -90,7 +90,7 @@ class LoginViewModel @Inject constructor(
                 _loginState.value = LoginState.Error("아이디 또는 비밀번호가 올바르지 않습니다.")
             }
         }
-    }*/
+    }
 
     sealed class LoginState {
         object Loading : LoginState()

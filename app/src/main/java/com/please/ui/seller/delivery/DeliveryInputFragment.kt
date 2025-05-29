@@ -58,12 +58,14 @@ class DeliveryInputFragment : Fragment() {
             viewModel.toggleCautionRequired()
         }
         
-        // 주소 검색 버튼
+        // 주소 검색 버튼 - 제거된 뷰로 인해 주석처리
+        /*
         binding.btnAddressSearch.setOnClickListener {
             // 실제 구현에서는 주소 검색 API 호출
             // 데모를 위해 임의의 주소 설정
             viewModel.setAddress("서울시 강남구 테헤란로 123")
         }
+        */
         
         // 저장 버튼
         binding.btnSave.setOnClickListener {
