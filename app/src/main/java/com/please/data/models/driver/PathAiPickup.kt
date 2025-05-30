@@ -5,13 +5,13 @@ data class PathAiPickup(
 )
 
 data class ParceIdRequest(
-    val parcelId: String
+    val parcelId: Int
 )
 
 
 data class WebhookResponse(
     val status: String,
-    val parcelId: String,
+    val parcelId: Int,    // DB와 일치하도록 String에서 Int로 변경
     val district: String, // 수거 지역 구.
     val driverId: Int,   // 할당된 기사 ID (1-5)
     val coordinates: Coordinates

@@ -5,7 +5,7 @@ data class DeliveryComRequest(
 )
 
 //error의 경우?
-data class DeliveryComResponse(
+data class PathAiDeliveryResponse(
     val status: String
 )
 

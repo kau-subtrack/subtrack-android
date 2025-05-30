@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.please.R
 import com.please.data.models.auth.UserType
 import com.please.databinding.FragmentLoginBinding
+import com.please.utils.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -48,6 +49,17 @@ class LoginFragment : Fragment() {
                 is LoginViewModel.LoginState.Success -> {
                     binding.progressBar.visibility = View.GONE
                     binding.btnLogin.isEnabled = true
+                    
+                    // 토큰 저장
+                    val preferenceManager = PreferenceManager(requireContext())
+                    state.data.token?.let { token ->
+                        preferenceManager.saveToken(token)
+                        
+                        // 아이디 기억하기 체크되어 있으면 사용자 ID 저장
+                        if (binding.cbRememberId.isChecked) {
+                            preferenceManager.saveUserId(binding.etId.text.toString())
+                        }
+                    }
 
                     viewModel.selectedUserType.observe(viewLifecycleOwner) { s ->
 

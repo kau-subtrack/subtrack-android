@@ -193,7 +193,7 @@ class SellerDeliveryFragment : Fragment() {
     }
 
     //택배 수동 삭제
-    private fun showDeleteConfirmDialog(deliveryId: String) {
+    private fun showDeleteConfirmDialog(deliveryId: Int) {
         AlertDialog.Builder(requireContext())
             .setTitle("택배 삭제")
             .setMessage("이 택배를 삭제하시겠습니까?")

@@ -23,10 +23,10 @@ import javax.inject.Singleton
 //const val BASE_URL = "https://2y3az5fho1.execute-api.ap-northeast-2.amazonaws.com/Subtrack-stage/"
 //const val BASE_URL = "http://43.200.131.230:3000/"
 //const val  BASE_URL = "http://web-alb-subtrack-462963304.ap-northeast-2.elb.amazonaws.com/"
-const val BASE_URL = "https://vw0y369jm5.execute-api.ap-northeast-2.amazonaws.com/Subtrack/"
+const val BASE_URL = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com/"
 const val BASE_URL_GEOMERTY = "https://maps.googleapis.com/"
-const val BASE_URL_PATH_AI = "https://vw0y369jm5.execute-api.ap-northeast-2.amazonaws.com/Subtrack/optimal/" //api to optimal
-const val BASE_URL_PATH_RAW_AI = "http://ec2-43-200-131-230.ap-northeast-2.compute.amazonaws.com:5000/api/" //api.
+const val BASE_URL_PATH_AI = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com/api/" //api to optimal
+const val BASE_URL_PATH_RAW_AI = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com/api/" //api.
 const val BASE_URL_CHAT_AI = "https://api.example.com/"
 
 @Module

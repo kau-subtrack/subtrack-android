@@ -14,7 +14,7 @@ object DriverDataRepository {
         for (i in 1..30) {
             add(
                 CollectionRequest(
-                    id = i.toString(),
+                    id = i,
                     trackingNumber = "12345${i.toString().padStart(5, '0')}",
                     productType = when (i % 5) {
                         0 -> "의류"
@@ -41,7 +41,7 @@ object DriverDataRepository {
         for (i in 1..30) {
             add(
                 DeliveryRequest(
-                    id = i.toString(),
+                    id = i,
                     trackingNumber = "98765${i.toString().padStart(5, '0')}",
                     productDetails = when (i % 5) {
                         0 -> "의류, 신발"
@@ -66,12 +66,12 @@ object DriverDataRepository {
     }
     
     // 수거 요청 삭제
-    fun removeCollectionRequest(id: String): Boolean {
+    fun removeCollectionRequest(id: Int): Boolean {
         return collectionRequests.removeIf { it.id == id }
     }
     
     // 배송 요청 삭제
-    fun removeDeliveryRequest(id: String): Boolean {
+    fun removeDeliveryRequest(id: Int): Boolean {
         return deliveryRequests.removeIf { it.id == id }
     }
     
@@ -84,7 +84,7 @@ object DriverDataRepository {
         for (i in 1..30) {
             collectionRequests.add(
                 CollectionRequest(
-                    id = i.toString(),
+                    id = i,
                     trackingNumber = "12345${i.toString().padStart(5, '0')}",
                     productType = when (i % 5) {
                         0 -> "의류"
@@ -108,7 +108,7 @@ object DriverDataRepository {
         for (i in 1..30) {
             deliveryRequests.add(
                 DeliveryRequest(
-                    id = i.toString(),
+                    id = i,
                     trackingNumber = "98765${i.toString().padStart(5, '0')}",
                     productDetails = when (i % 5) {
                         0 -> "의류, 신발"

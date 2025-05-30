@@ -16,7 +16,7 @@ enum class PackageSize {
 }
 
 data class DeliveryInfo(
-    val id: String, // 고유 ID
+    val id: Int, // 고유 ID
     val productName: String, // 제품명
     val recipientName: String, // 수령인 이름
     val recipientPhone: String, // 수령인 전화번호

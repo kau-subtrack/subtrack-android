@@ -4,9 +4,9 @@ package com.please.data.models.driver
  * 배송 요청 정보를 담는 데이터 클래스
  */
 data class DeliveryRequest(
-    val id: String,              // 배송 요청 ID
-    val trackingNumber: String,  // 송장번호
-    val productDetails: String   // 제품 상세 정보
+    val id: Int,                // 배송 요청 ID
+    val trackingNumber: String, // 송장번호
+    val productDetails: String  // 제품 상세 정보
 )
 
 //
@@ -46,8 +46,8 @@ data class DeliveryCom(
     val status: Boolean
 )
 
-//이거 양식 있을텐데
+//이제 DB와 일치하도록 Int 타입으로 수정
 data class id(
-    val ownerId: String, //왜 string?
+    val ownerId: Int
 )
 
