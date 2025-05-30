@@ -11,7 +11,7 @@ import com.please.data.models.seller.DeliveryStatus
 import com.please.databinding.ItemDeliveryBinding
 
 class DeliveryAdapter(
-    private val onDeleteClick: (String) -> Unit,
+    private val onDeleteClick: (Int) -> Unit,
     private val getDeliveryStatusColor: (DeliveryStatus) -> Int,
     private val getDeliveryStatusText: (DeliveryStatus) -> String
 ) : ListAdapter<DeliveryInfo, DeliveryAdapter.DeliveryViewHolder>(DIFF_CALLBACK) {

@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.Random
 import java.util.UUID
 import javax.inject.Inject
 
@@ -230,7 +231,7 @@ class SellerDeliveryViewModel @Inject constructor(
         }
     }
 
-    fun deleteDelivery(id: String) {
+    fun deleteDelivery(id: Int) {
         repository.deleteDelivery(id)
         _selectedDate.value?.let { loadDeliveries(it) }
     }
@@ -240,7 +241,7 @@ class SellerDeliveryViewModel @Inject constructor(
         val pickupDate = _selectedDate.value ?: Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, 1) }.time
 
         val deliveryInfo = DeliveryInfo(
-            id = UUID.randomUUID().toString(),
+            id = Random().nextInt(1000000), // 임시 고유 ID
             productName = "임시 제품명",
             recipientName = "수령인",
             recipientPhone = contactPhone,

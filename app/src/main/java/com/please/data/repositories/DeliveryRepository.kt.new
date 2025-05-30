@@ -17,19 +17,19 @@ import javax.inject.Singleton
 
 @Singleton
 class DeliveryRepository @Inject constructor() {
-
+    
     // 실제 구현에서는 API 또는 로컬 데이터베이스에서 데이터를 관리합니다.
     // 지금은 메모리에 임시 저장합니다.
     private val deliveryList = mutableListOf<DeliveryInfo>()
-
+    
     init {
         // 샘플 데이터 추가
         val calendar = Calendar.getInstance()
-
+        
         // 내일 날짜 가져오기
         val tomorrow = Calendar.getInstance()
         tomorrow.add(Calendar.DAY_OF_MONTH, 1)
-
+        
         // 기존 deliveryList는 새로 등록한 내역만 기입
         // 샘플 데이터: 내일 날짜의 택배 몇 개
         /*
@@ -49,7 +49,7 @@ class DeliveryRepository @Inject constructor() {
         )
          */
     }
-
+    
     // 특정 날짜의 모든 배송 정보 가져오기
     fun getDeliveriesByDate(date: Date): List<DeliveryInfo> {
         val calendar = Calendar.getInstance().apply { time = date }
@@ -58,20 +58,20 @@ class DeliveryRepository @Inject constructor() {
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
         val startDate = calendar.time
-
+        
         calendar.set(Calendar.HOUR_OF_DAY, 23)
         calendar.set(Calendar.MINUTE, 59)
         calendar.set(Calendar.SECOND, 59)
         calendar.set(Calendar.MILLISECOND, 999)
         val endDate = calendar.time
-
+        
         // 이것. deliverList가 List. 해당 기록에 대한 것.
         // 필터 날짜 List만 반환.
-        return deliveryList.filter {
-            it.pickupDate.time >= startDate.time && it.pickupDate.time <= endDate.time
+        return deliveryList.filter { 
+            it.pickupDate.time >= startDate.time && it.pickupDate.time <= endDate.time 
         }
     }
-
+    
     // 새 배송 정보 추가
     fun addDelivery(deliveryInfo: DeliveryInfo) {
         // 운송장 번호가 없으면 임의로 생성
@@ -81,21 +81,21 @@ class DeliveryRepository @Inject constructor() {
         } else {
             deliveryInfo
         }
-
+        
         deliveryList.add(infoWithTrackingNumber)
     }
-
+    
     // 운송장 번호 생성 (실제로는 배송 회사 API 등을 통해 발급)
     private fun generateTrackingNumber(): String {
         // 간단한 10자리 숫자 생성
         return (1000000000 + (Math.random() * 9000000000).toInt()).toString()
     }
-
+    
     // 배송 정보 삭제
     fun deleteDelivery(id: Int) {
         deliveryList.removeIf { it.id == id }
     }
-
+    
     // 배송 상태 업데이트
     fun updateDeliveryStatus(id: Int, status: DeliveryStatus) {
         val index = deliveryList.indexOfFirst { it.id == id }
@@ -107,7 +107,7 @@ class DeliveryRepository @Inject constructor() {
 
     fun jsonDelivery(json: DeliveryBaseResponse): List<DeliveryInfo>{
         val deliveryList = mutableListOf<DeliveryInfo>()
-
+        
         //조회한 모든 내역 변경 - 백엔드 반환값을 프론트 deliveryinfo 형식으로 반환
         val list = json.data
         for(pack in list) {
@@ -150,7 +150,7 @@ class DeliveryRepository @Inject constructor() {
         return try {
             // 문자열을 ParcelStatus enum으로 변환
             val parcelStatus = ParcelStatus.valueOf(dataStatus)
-
+            
             // ParcelStatus에 따라 적절한 DeliveryStatus로 매핑
             when (parcelStatus) {
                 ParcelStatus.PENDING_PICKUP, ParcelStatus.IN_PICKUP -> DeliveryStatus.PENDING

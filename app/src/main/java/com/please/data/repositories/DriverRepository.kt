@@ -5,7 +5,7 @@ import com.please.data.models.driver.DeliveryComResponse
 import com.please.data.models.driver.DeliveryResponse
 import com.please.data.models.driver.DriverHomeResponse
 import com.please.data.models.driver.IdRequest
-import com.please.data.models.driver.PickComResponse
+import com.please.data.models.driver.PickCompletedResponse
 import com.please.data.models.driver.PickResponse
 import com.please.data.models.driver.TrackCodeRequest
 import retrofit2.Response
@@ -31,8 +31,8 @@ class DriverRepository @Inject constructor(
         return driverApiService.getPickupList("Bearer $token")
     }
 
-    suspend fun patchPickComplete(token: String, id: String): Response<PickComResponse>{
-        val parcelId = IdRequest( ownerId = id )
+    suspend fun patchPickComplete(token: String, id: Int): Response<PickCompletedResponse>{
+        val parcelId = IdRequest(ownerId = id)
         return driverApiService.patchPickComplete("Bearer $token", parcelId)
     }
 
