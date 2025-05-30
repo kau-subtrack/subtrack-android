@@ -1,17 +1,12 @@
 package com.please.data.api
 
-import com.please.data.api.PathAiPickupApi.AppUser.userId
-import com.please.data.models.driver.DeliveryComRequest
-import com.please.data.models.driver.DeliveryComResponse
 import com.please.data.models.driver.HealthResponse
 import com.please.data.models.driver.ParceIdRequest
-import com.please.data.models.driver.PathAiNextResponse
 import com.please.data.models.driver.PickAllResponse
 import com.please.data.models.driver.WebhookResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface PathAiPickupApi {
