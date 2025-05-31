@@ -77,11 +77,6 @@ class SellerHomeFragment : Fragment(), OnMapReadyCallback {
                     // 수거 날짜 설정
                     binding.tvPickupDate.text = data.pickupDate // data.pickupInfo.date
                     
-                    // 배정 기사 정보 설정
-                    binding.tvCourierName.text = "1"//data.courierInfo.name
-                    binding.tvCourierPhone.text = "2" //data.courierInfo.phoneNumber
-                    binding.tvCourierCar.text = "3" //data.courierInfo.carNumber
-                    
                     // 포인트 정보 설정
                     binding.tvPoints.text = data.points.toString()
                     

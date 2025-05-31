@@ -4,7 +4,6 @@ import com.please.data.models.driver.DeliveryComResponse
 import com.please.data.models.driver.DeliveryResponse
 import com.please.data.models.driver.DriverHomeResponse
 import com.please.data.models.driver.IdRequest
-import com.please.data.models.driver.PathAiDeliveryResponse
 import com.please.data.models.driver.PickCompletedResponse
 import com.please.data.models.driver.PickResponse
 import com.please.data.models.driver.TrackCodeRequest
