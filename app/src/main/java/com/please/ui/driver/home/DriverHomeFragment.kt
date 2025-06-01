@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.please.R
 import com.please.databinding.FragmentDriverHomeBinding
 import com.please.ui.driver.home.DriverHomeViewModel.HomeInfoState
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,6 +44,13 @@ class DriverHomeFragment : Fragment() {
             Toast.makeText(requireContext(), "데이터를 새로고침 중...", Toast.LENGTH_SHORT).show()
             viewModel.refreshData()
         }
+        
+        // 로그아웃 버튼 클릭 이벤트
+        binding.btnLogout.setOnClickListener {
+            viewModel.logout()
+            // 로그인 화면으로 이동하고 백스택 정리
+            findNavController().navigate(R.id.action_driverHomeFragment_to_loginFragment)
+        }
     }
 
     private fun setupObservers() {
@@ -70,11 +79,7 @@ class DriverHomeFragment : Fragment() {
         val data = response.data
         binding.apply {
             // 담당 위치 업데이트 - 빈 값 처리
-            tvLocation.text = if (data.region.isNullOrBlank()) {
-                "지역 정보 없음"
-            } else {
-                data.region
-            }
+            tvLocation.text = data.region.ifBlank { "지역 정보 없음" }
 
             // 이번 달 수행 건수 업데이트
             tvMonthlyPickup.text = data.monthlyCount.pickup.toString()

@@ -16,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DriverHomeViewModel @Inject constructor(
-    private val repository: DriverRepository
+    private val repository: DriverRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _homeInfoState = MutableLiveData<HomeInfoState>()
@@ -78,6 +79,11 @@ class DriverHomeViewModel @Inject constructor(
     fun refreshData() {
         val token = AuthRepository.AppState.userToken ?: "none"
         loadHomeInfo(token)
+    }
+    
+    // 로그아웃
+    fun logout() {
+        authRepository.logout()
     }
 
     // 홈 정보 상태를 나타내는 sealed class

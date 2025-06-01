@@ -54,6 +54,11 @@
             <action
                 android:id="@+id/action_sellerHomeFragment_to_chatbotFragment"
                 app:destination="@id/chatbotFragment" />
+            <action
+                android:id="@+id/action_sellerHomeFragment_to_loginFragment"
+                app:destination="@id/loginFragment"
+                app:popUpTo="@id/nav_graph"
+                app:popUpToInclusive="false" />
         </fragment>
         
         <fragment
@@ -121,6 +126,11 @@
             <action
                 android:id="@+id/action_driverHomeFragment_to_driverMapFragment"
                 app:destination="@id/driverMapFragment" />
+            <action
+                android:id="@+id/action_driverHomeFragment_to_loginFragment"
+                app:destination="@id/loginFragment"
+                app:popUpTo="@id/nav_graph"
+                app:popUpToInclusive="false" />
         </fragment>
             
         <fragment

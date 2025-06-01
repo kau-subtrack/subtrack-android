@@ -112,6 +112,13 @@ class SellerHomeFragment : Fragment(), OnMapReadyCallback {
             // 챗봇 화면으로 이동
             findNavController().navigate(R.id.action_sellerHomeFragment_to_chatbotFragment)
         }
+        
+        // 로그아웃 버튼 클릭 이벤트
+        binding.btnLogout.setOnClickListener {
+            viewModel.logout()
+            // 로그인 화면으로 이동하고 백스택 정리
+            findNavController().navigate(R.id.action_sellerHomeFragment_to_loginFragment)
+        }
     }
     
     //기본 지도 로딩

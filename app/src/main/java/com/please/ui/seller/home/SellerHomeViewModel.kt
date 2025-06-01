@@ -19,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SellerHomeViewModel @Inject constructor(
     private val repository: SellerRepository,
-    private val repository_map: GoogleMapRepository
+    private val repository_map: GoogleMapRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _homeInfoState = MutableLiveData<HomeInfoState>()
@@ -77,6 +78,11 @@ class SellerHomeViewModel @Inject constructor(
                 // 예외 처리
             }
         }
+    }
+    
+    // 로그아웃
+    fun logout() {
+        authRepository.logout()
     }
 
     // 홈 정보 상태를 나타내는 sealed class

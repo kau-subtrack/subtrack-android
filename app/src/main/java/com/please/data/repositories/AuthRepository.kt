@@ -29,4 +29,10 @@ class AuthRepository @Inject constructor(
     suspend fun checkIdDuplicate(id: String): Response<Boolean> {
         return apiService.checkIdDuplicate(id)
     }
+    
+    fun logout() {
+        // 로그인 토큰 및 사용자 정보 삭제
+        AppState.userToken = null
+        // 추후 SharedPreferences나 다른 저장소에서 사용자 정보 삭제 로직 추가 가능
+    }
 }
