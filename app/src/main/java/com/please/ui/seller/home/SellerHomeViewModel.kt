@@ -79,6 +79,10 @@ class SellerHomeViewModel @Inject constructor(
         }
     }
 
+    fun logout(){
+        AuthRepository.AppState.userToken = null
+    }
+
     // 홈 정보 상태를 나타내는 sealed class
     sealed class HomeInfoState {
         object Loading : HomeInfoState()
