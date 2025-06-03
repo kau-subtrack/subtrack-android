@@ -251,7 +251,7 @@
         android:backgroundTint="@android:color/black"
         android:text="로그아웃"
         android:textColor="@android:color/white"
-        android:textSize="14sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         app:cornerRadius="4dp"
         android:insetTop="0dp"

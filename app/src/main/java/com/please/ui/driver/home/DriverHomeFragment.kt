@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.please.R
 import com.please.databinding.FragmentDriverHomeBinding
 import com.please.ui.driver.home.DriverHomeViewModel.HomeInfoState
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,6 +43,13 @@ class DriverHomeFragment : Fragment() {
         binding.pointsCard.setOnClickListener {
             Toast.makeText(requireContext(), "데이터를 새로고침 중...", Toast.LENGTH_SHORT).show()
             viewModel.refreshData()
+        }
+
+        // 로그아웃 버튼 클릭 이벤트Add commentMore actions
+        binding.btnLogout.setOnClickListener {
+            viewModel.logout()
+            // 로그인 화면으로 이동하고 백스택 정리
+            findNavController().navigate(R.id.action_driverHomeFragment_to_loginFragment)
         }
     }
 
