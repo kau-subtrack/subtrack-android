@@ -26,10 +26,10 @@ import javax.inject.Singleton
 //const val  BASE_URL = "http://web-alb-subtrack-462963304.ap-northeast-2.elb.amazonaws.com/"
 const val BASE_URL = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com/"
 const val BASE_URL_GEOMERTY = "https://maps.googleapis.com/"
-const val BASE_URL_PATH_AI = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com/api/" //api to optimal
-const val BASE_URL_PATH_RAW_AI = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com/api/" //api.
 const val BASE_URL_CHAT_AI = "https://api.example.com/"
 const val BASE_URL_TSP = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com:8080/"
+const val BASE_URL_PATH_AI = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com/api/"
+const val BASE_URL_PATH_RAW_AI = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com/api/"
 
 @Module
 @InstallIn(SingletonComponent::class)

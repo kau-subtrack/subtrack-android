@@ -39,6 +39,9 @@
         <meta-data
                 android:name="com.kakao.sdk.AppKey"
                 android:value="f353ba92e8fb10d5280a4fbafa486158"/>
+        <meta-data
+            android:name="com.kakao.vectormap.APP_KEY"
+            android:value="1e06b2a7881c3d79d9c11a6eae667adb" />
 
     </application>
 

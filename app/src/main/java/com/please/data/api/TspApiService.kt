@@ -1,10 +1,10 @@
 package com.please.data.api
 
 import com.please.data.models.driver.NextDestinationResponse
-import com.please.data.models.driver.CompletePickupRequest
 import com.please.data.models.driver.ApiResponse
 import retrofit2.Response
 import retrofit2.http.*
+import com.please.data.models.driver.CompletePickupRequest
 
 /**
  * TSP (수거 최적화) API 서비스 인터페이스

@@ -6,35 +6,34 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.please.data.models.*
-import com.please.data.api.TspApiService
-import com.please.data.models.driver.CompletePickupRequest
-import com.please.data.models.driver.DestinationState
-import com.please.data.models.driver.NextDestinationResponse
-import com.please.data.models.driver.Waypoint
+import com.google.android.gms.maps.model.LatLng
+import com.please.data.api.DriverApiService
+import com.please.data.models.driver.*
 import com.please.utils.PreferenceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import retrofit2.Response
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
 class DriverMapViewModel @Inject constructor(
-    private val tspApiService: TspApiService,
+    private val driverApiService: DriverApiService,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    // PreferenceManager 초기화
-    private val preferenceManager: PreferenceManager by lazy {
-        PreferenceManager(context)
-    }
+    private val preferenceManager = PreferenceManager(context)
 
-    // UI States
-    private val _destinationState = MutableLiveData<DestinationState>()
-    val destinationState: LiveData<DestinationState> = _destinationState
+    private val _nextDestination = MutableLiveData<NextDestinationResponse>()
+    val nextDestination: LiveData<NextDestinationResponse> = _nextDestination
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
 
     private val _pickupCompleted = MutableLiveData<Boolean>()
     val pickupCompleted: LiveData<Boolean> = _pickupCompleted
@@ -42,84 +41,126 @@ class DriverMapViewModel @Inject constructor(
     private val _hubArrivalCompleted = MutableLiveData<Boolean>()
     val hubArrivalCompleted: LiveData<Boolean> = _hubArrivalCompleted
 
-    // Current Data
-    private var currentParcelId: String? = null
-    private var remainingPickups: Int = 0
-    private var currentWaypoints: List<Waypoint> = emptyList()
+    // 🔧 논리적 현재 위치 관리 (GPS 제거됨)
+    private val _logicalCurrentPosition = MutableLiveData<LatLng?>()
+    val logicalCurrentPosition: LiveData<LatLng?> = _logicalCurrentPosition
 
-    // 실제 현재 위치 (GPS에서 업데이트됨)
-    private var currentLat: Double = 37.566826 // 기본값 (서울시청)
-    private var currentLon: Double = 126.978656
+    init {
+        // 🔧 앱 시작시 허브를 기본 현재 위치로 설정
+        val hubLocation = LatLng(37.5299, 126.9648) // 용산역 허브
+        updateLogicalCurrentPosition(hubLocation)
+        Log.d("TSP_INIT", "🏢 ViewModel 초기화: 허브를 시작 위치로 설정")
 
-    // 🔥 핵심 수정: 상태 관리 강화
-    private var isCurrentlyOnPickup = false  // 현재 수거 중인지 (수거 완료 전까지 true)
-    private var isCurrentlyReturningToHub = false  // 허브 복귀 중인지
-    private var savedPickupState: DestinationState.NavigateToPickup? = null  // 저장된 수거 상태
-    private var savedHubReturnState: DestinationState.ReturnToHub? = null  // 저장된 허브 복귀 상태
-
-    // ViewModel이 생성된 이후 첫 API 호출인지 확인
-    private var hasEverCalledApi = false
+        // 타이머 시작
+        startPeriodicAllCompletedCheck()
+    }
 
     /**
-     * 🔥 메인 함수: 다음 목적지 가져오기
-     * Fragment에서 호출되지만, 수거 중이면 저장된 상태 사용
+     * 오후 3시 이후 10분마다 전체 완료 체크
+     */
+    private fun startPeriodicAllCompletedCheck() {
+        viewModelScope.launch {
+            while (true) {
+                delay(600000) // 10분 대기
+
+                val currentTime = Calendar.getInstance()
+                val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
+
+                if (currentHour >= 15) { // 오후 3시 이후
+                    checkAllCompleted()
+                }
+            }
+        }
+    }
+
+    /**
+     * 전체 완료 상태 체크
+     */
+    private suspend fun checkAllCompleted() {
+        try {
+            val response = driverApiService.checkAllCompleted()
+
+            if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody?.completed == true) {
+                    Log.d("ALL_COMPLETED", "✅ 모든 수거 완료, 배달로 전환됨")
+                    // 필요시 UI 업데이트나 토스트 메시지 추가 가능
+                } else {
+                    Log.d("ALL_COMPLETED", "🔄 아직 미완료 수거가 있음")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("ALL_COMPLETED", "❌ 전체 완료 체크 실패", e)
+        }
+    }
+
+    /**
+     * 🔧 논리적 현재 위치 업데이트 (수거 완료 지점, 허브 등)
+     */
+    fun updateLogicalCurrentPosition(position: LatLng) {
+        _logicalCurrentPosition.value = position
+        Log.d("TSP_POSITION", "🎯 논리적 현재 위치 업데이트: $position")
+    }
+
+    /**
+     * 🔧 현재 위치 가져오기 (TSP 계산용)
+     */
+    fun getCurrentLogicalPosition(): LatLng? {
+        return _logicalCurrentPosition.value
+    }
+
+    /**
+     * 다음 목적지 정보를 가져옵니다 (TSP 최적화 적용)
      */
     fun getNextDestination() {
-        // 🔥 수거 중이면 기존 상태 유지 (TSP 재계산 안함!)
-        if (isCurrentlyOnPickup && savedPickupState != null) {
-            Log.d("STATE", "🚫 수거 중이므로 TSP 재계산 차단 - 기존 수거 상태 유지")
-            _destinationState.value = savedPickupState
-            return
-        }
+        _isLoading.value = true
+        _errorMessage.value = null
 
-        // 🔥 허브 복귀 중이면 기존 상태 유지
-        if (isCurrentlyReturningToHub && savedHubReturnState != null) {
-            Log.d("STATE", "🚫 허브 복귀 중이므로 상태 유지 - TSP 재계산 안함")
-            _destinationState.value = savedHubReturnState
-            return
-        }
-
-        // 🔥 첫 호출이거나, 수거/허브복귀가 완료된 후에만 새로운 TSP 계산
-        Log.d("STATE", "✅ 새로운 TSP 계산 시작 (수거 완료 후 또는 첫 호출)")
-        callNextDestinationApi()
-    }
-
-    /**
-     * 실제 API 호출 함수 (내부에서만 사용)
-     */
-    private fun callNextDestinationApi() {
         viewModelScope.launch {
             try {
-                _isLoading.value = true
-                Log.d("API", "🔄 다음 목적지 API 호출 시작 - TSP 최적화 계산")
+                val token = preferenceManager.getToken()
 
-                val authToken = getAuthToken()
-                if (authToken.isNullOrEmpty()) {
-                    Log.e("API", "❌ 인증 토큰이 없습니다")
-                    setWaitingState("로그인이 필요합니다.")
+                if (token.isNullOrEmpty()) {
+                    _errorMessage.value = "로그인이 필요합니다"
                     return@launch
                 }
 
-                // 실제 API 호출 (TSP 최적화 수행)
-                val response = tspApiService.getNextDestination("Bearer $authToken")
+                Log.d("TSP_API", "🚀 다음 목적지 요청 시작")
+
+                val response = driverApiService.getNextDestination("Bearer $token")
 
                 if (response.isSuccessful) {
-                    response.body()?.let { data ->
-                        Log.d("API", "✅ 다음 목적지 API 성공: ${data.status}")
-                        hasEverCalledApi = true
-                        handleApiResponse(data)
-                    } ?: run {
-                        Log.e("API", "❌ 응답 body가 null입니다")
-                        setWaitingState("서버 응답 오류가 발생했습니다.")
+                    val responseBody = response.body()
+                    if (responseBody != null) {
+                        _nextDestination.value = responseBody
+                        Log.d("TSP_API", "✅ 다음 목적지 응답: ${responseBody.status}")
+
+                        when (responseBody.status) {
+                            "waiting" -> Log.d("TSP_API", "⏰ 대기 상태: ${responseBody.message}")
+                            "waiting_for_orders" -> Log.d("TSP_API", "📋 신규 요청 대기: ${responseBody.message}")
+                            "success" -> {
+                                responseBody.nextDestination?.let { dest ->
+                                    Log.d("TSP_API", "🎯 다음 목적지: ${dest.name} (${dest.lat}, ${dest.lon})")
+                                }
+                            }
+                            "return_to_hub" -> {
+                                Log.d("TSP_API", "🏢 허브 복귀")
+                                val currentPos = getCurrentLogicalPosition()
+                                Log.d("TSP_API", "📍 현재 TSP 위치: $currentPos")
+                            }
+                            "at_hub" -> Log.d("TSP_API", "✅ 허브 도착 완료")
+                        }
+                    } else {
+                        _errorMessage.value = "서버 응답이 비어있습니다"
+                        Log.e("TSP_API", "❌ 빈 응답")
                     }
                 } else {
-                    Log.e("API", "❌ API 호출 실패: ${response.code()} - ${response.message()}")
-                    handleApiError(response.code())
+                    handleApiError(response)
                 }
 
             } catch (e: Exception) {
-                Log.e("API", "❌ API 호출 예외: ${e.message}", e)
-                setWaitingState("네트워크 연결을 확인해주세요.")
+                Log.e("TSP_API", "❌ 다음 목적지 요청 실패", e)
+                _errorMessage.value = "네트워크 오류: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -127,134 +168,48 @@ class DriverMapViewModel @Inject constructor(
     }
 
     /**
-     * API 응답 처리
+     * 🔧 수거 완료 처리 (TSP) - 완료 후 위치 업데이트 포함
      */
-    private fun handleApiResponse(response: NextDestinationResponse) {
-        when (response.status) {
-            "waiting" -> {
-                Log.d("STATE", "⏰ 업무 시작 대기 상태")
-                clearAllStates()
-                _destinationState.value = DestinationState.Waiting(
-                    response.message ?: "업무 시작 시간을 기다리는 중..."
-                )
-            }
-
-            "waiting_for_orders" -> {
-                Log.d("STATE", "📋 새 주문 대기 상태")
-                clearAllStates()
-                _destinationState.value = DestinationState.WaitingForOrders(
-                    response.message ?: "새로운 수거 요청을 기다리는 중..."
-                )
-            }
-
-            "success" -> {
-                val destination = response.nextDestination
-                val route = response.route
-
-                if (destination == null || route == null) {
-                    Log.e("API", "❌ 목적지나 경로 정보가 없습니다")
-                    setWaitingState("경로 정보를 가져올 수 없습니다.")
-                    return
-                }
-
-                // 🔥 수거 상태 시작
-                currentParcelId = destination.parcelId
-                remainingPickups = response.remainingPickups
-                currentWaypoints = route.waypoints ?: emptyList()
-
-                Log.d("STATE", "🎯 새 수거 시작: ${destination.name}")
-                Log.d("STATE", "📦 남은 수거: ${remainingPickups}개")
-                Log.d("STATE", "🔒 수거 상태 잠금 - 완료 버튼 누를 때까지 경로 고정")
-
-                val pickupState = DestinationState.NavigateToPickup(
-                    destination = destination,
-                    route = route
-                )
-
-                // 🔥 수거 상태 저장 및 잠금
-                isCurrentlyOnPickup = true
-                isCurrentlyReturningToHub = false
-                savedPickupState = pickupState
-                savedHubReturnState = null
-
-                _destinationState.value = pickupState
-            }
-
-            "return_to_hub" -> {
-                val route = response.route
-                if (route == null) {
-                    Log.e("API", "❌ 허브 복귀 경로 정보가 없습니다")
-                    setWaitingState("허브 복귀 경로를 가져올 수 없습니다.")
-                    return
-                }
-
-                Log.d("STATE", "🏠 허브 복귀 시작")
-                Log.d("STATE", "🔒 허브 복귀 상태 잠금 - 도착 버튼 누를 때까지 고정")
-
-                val hubReturnState = DestinationState.ReturnToHub(route)
-
-                // 🔥 허브 복귀 상태 저장 및 잠금
-                isCurrentlyOnPickup = false
-                isCurrentlyReturningToHub = true
-                savedPickupState = null
-                savedHubReturnState = hubReturnState
-
-                _destinationState.value = hubReturnState
-            }
-
-            "at_hub" -> {
-                Log.d("STATE", "✅ 허브 도착 완료 - 오늘 업무 종료")
-                clearAllStates()
-                _destinationState.value = DestinationState.AtHub
-            }
-
-            else -> {
-                Log.e("API", "❌ 알 수 없는 상태: ${response.status}")
-                clearAllStates()
-                setWaitingState("알 수 없는 응답을 받았습니다.")
-            }
-        }
-    }
-
-    /**
-     * 🔥 수거 완료 처리 - 여기서만 수거 상태 해제!
-     */
-    fun completeCurrentPickup() {
-        if (currentParcelId.isNullOrEmpty()) {
-            Log.e("API", "❌ 완료할 소포 ID가 없습니다")
+    fun completePickup(parcelId: String) {
+        if (parcelId.isEmpty()) {
+            _errorMessage.value = "소포 ID가 없습니다"
             return
         }
 
+        _isLoading.value = true
+        _errorMessage.value = null
+
         viewModelScope.launch {
             try {
-                _isLoading.value = true
-                Log.d("API", "📦 수거 완료 API 호출: $currentParcelId")
+                val token = preferenceManager.getToken()
 
-                val authToken = getAuthToken()
-                if (authToken.isNullOrEmpty()) {
-                    Log.e("API", "❌ 인증 토큰이 없습니다")
+                if (token.isNullOrEmpty()) {
+                    _errorMessage.value = "로그인이 필요합니다"
                     return@launch
                 }
 
-                // 실제 API 호출
-                val response = tspApiService.completePickup(
-                    "Bearer $authToken",
-                    CompletePickupRequest(currentParcelId!!)
-                )
+                Log.d("TSP_API", "📦 수거 완료 처리 시작: $parcelId")
+
+                val request = CompletePickupRequest(parcelId = parcelId)
+                val response = driverApiService.completePickup("Bearer $token", request)
 
                 if (response.isSuccessful) {
-                    Log.d("API", "✅ 수거 완료 성공")
-                    handlePickupCompletion()
+                    val responseBody = response.body()
+                    if (responseBody?.status == "success") {
+                        _pickupCompleted.value = true
+                        Log.d("TSP_API", "✅ 수거 완료 성공: $parcelId")
+
+                    } else {
+                        _errorMessage.value = responseBody?.message ?: "수거 완료 처리에 실패했습니다"
+                        Log.e("TSP_API", "❌ 수거 완료 실패: ${responseBody?.message}")
+                    }
                 } else {
-                    Log.e("API", "❌ 수거 완료 실패: ${response.code()}")
-                    // UX를 위해 실패해도 완료 처리
-                    handlePickupCompletion()
+                    handleApiError(response)
                 }
 
             } catch (e: Exception) {
-                Log.e("API", "❌ 수거 완료 API 예외: ${e.message}", e)
-                // UX를 위해 예외 발생해도 완료 처리
-                handlePickupCompletion()
+                Log.e("TSP_API", "❌ 수거 완료 처리 실패", e)
+                _errorMessage.value = "수거 완료 처리 중 오류가 발생했습니다: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -262,113 +217,91 @@ class DriverMapViewModel @Inject constructor(
     }
 
     /**
-     * 수거 완료 후 상태 클리어
-     */
-    private fun handlePickupCompletion() {
-        Log.d("STATE", "🔓 수거 완료 - 상태 잠금 해제")
-
-        // 🔥 수거 상태 완전 클리어
-        isCurrentlyOnPickup = false
-        savedPickupState = null
-        currentParcelId = null
-
-        _pickupCompleted.value = true
-
-        Log.d("STATE", "✅ 다음 TSP 계산 준비 완료")
-    }
-
-    /**
-     * 🔥 허브 도착 완료 처리
+     * 🔧 허브 도착 완료 처리 (TSP)
      */
     fun completeHubArrival() {
+        _isLoading.value = true
+        _errorMessage.value = null
+
         viewModelScope.launch {
             try {
-                _isLoading.value = true
-                Log.d("API", "🏠 허브 도착 API 호출")
+                val token = preferenceManager.getToken()
 
-                val authToken = getAuthToken()
-                if (authToken.isNullOrEmpty()) {
-                    Log.e("API", "❌ 인증 토큰이 없습니다")
+                if (token.isNullOrEmpty()) {
+                    _errorMessage.value = "로그인이 필요합니다"
                     return@launch
                 }
 
-                val response = tspApiService.hubArrived("Bearer $authToken")
+                Log.d("TSP_API", "🏢 허브 도착 완료 처리 시작")
+
+                val response = driverApiService.completeHubArrival("Bearer $token")
 
                 if (response.isSuccessful) {
-                    Log.d("API", "✅ 허브 도착 완료 성공")
-                    handleHubArrivalCompletion()
+                    val responseBody = response.body()
+                    if (responseBody?.status == "success") {
+                        _hubArrivalCompleted.value = true
+                        Log.d("TSP_API", "✅ 허브 도착 완료")
+
+                        // 🔧 허브 도착시 허브 위치를 현재 위치로 설정
+                        val hubLocation = LatLng(37.5299, 126.9648)
+                        updateLogicalCurrentPosition(hubLocation)
+
+                    } else {
+                        _errorMessage.value = responseBody?.message ?: "허브 도착 처리에 실패했습니다"
+                        Log.e("TSP_API", "❌ 허브 도착 실패: ${responseBody?.message}")
+                    }
                 } else {
-                    Log.e("API", "❌ 허브 도착 실패: ${response.code()}")
-                    handleHubArrivalCompletion()
+                    handleApiError(response)
                 }
 
             } catch (e: Exception) {
-                Log.e("API", "❌ 허브 도착 API 예외: ${e.message}", e)
-                handleHubArrivalCompletion()
+                Log.e("TSP_API", "❌ 허브 도착 처리 실패", e)
+                _errorMessage.value = "허브 도착 처리 중 오류가 발생했습니다: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
         }
-    }
-
-    /**
-     * 허브 도착 완료 후 상태 클리어
-     */
-    private fun handleHubArrivalCompletion() {
-        Log.d("STATE", "🔓 허브 도착 완료 - 모든 상태 클리어")
-        clearAllStates()
-        _hubArrivalCompleted.value = true
-    }
-
-    /**
-     * 모든 상태 클리어
-     */
-    private fun clearAllStates() {
-        isCurrentlyOnPickup = false
-        isCurrentlyReturningToHub = false
-        savedPickupState = null
-        savedHubReturnState = null
-        currentParcelId = null
-    }
-
-    /**
-     * 대기 상태 설정 헬퍼
-     */
-    private fun setWaitingState(message: String) {
-        clearAllStates()
-        _destinationState.value = DestinationState.WaitingForOrders(message)
     }
 
     /**
      * API 에러 처리
      */
-    private fun handleApiError(errorCode: Int) {
-        val message = when (errorCode) {
+    private fun <T> handleApiError(response: Response<T>) {
+        val errorMessage = when (response.code()) {
             401 -> "인증이 만료되었습니다. 다시 로그인해주세요."
-            404 -> "서비스를 찾을 수 없습니다."
-            500 -> "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
-            else -> "네트워크 오류가 발생했습니다. ($errorCode)"
+            403 -> "접근 권한이 없습니다."
+            404 -> "요청한 정보를 찾을 수 없습니다."
+            500 -> "서버 오류가 발생했습니다."
+            else -> "알 수 없는 오류가 발생했습니다 (${response.code()})"
         }
-        setWaitingState(message)
+
+        _errorMessage.value = errorMessage
+        Log.e("TSP_API", "❌ API 오류: ${response.code()} - $errorMessage")
     }
 
-    // 기존 함수들 유지
-    fun updateCurrentLocation(lat: Double, lon: Double) {
-        currentLat = lat
-        currentLon = lon
-        Log.d("LOCATION", "📍 현재 위치 업데이트: ($lat, $lon)")
+    fun clearError() {
+        _errorMessage.value = null
     }
 
-    fun getRemainingPickups(): Int = remainingPickups
-    fun getCurrentWaypoints(): List<Waypoint> = currentWaypoints
+    fun clearPickupCompleted() {
+        _pickupCompleted.value = false
+    }
 
-    private fun getAuthToken(): String? {
-        val token = preferenceManager.getToken()
-        if (token.isNullOrEmpty()) {
-            Log.w("AUTH", "⚠️ 저장된 인증 토큰을 찾을 수 없습니다")
-        } else {
-            Log.d("AUTH", "🔑 토큰 사용: ${token.take(20)}...")
-        }
-        return token
+    fun clearHubArrivalCompleted() {
+        _hubArrivalCompleted.value = false
+    }
+
+    /**
+     * 🔧 디버깅용 - 현재 상태 로그
+     */
+    fun logCurrentState() {
+        val currentPos = getCurrentLogicalPosition()
+        val nextDest = _nextDestination.value
+
+        Log.d("TSP_DEBUG", "=== 현재 TSP 상태 ===")
+        Log.d("TSP_DEBUG", "논리적 현재 위치: $currentPos")
+        Log.d("TSP_DEBUG", "다음 목적지 상태: ${nextDest?.status}")
+        Log.d("TSP_DEBUG", "로딩 중: ${_isLoading.value}")
+        Log.d("TSP_DEBUG", "=================")
     }
 }

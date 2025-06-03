@@ -1,392 +1,572 @@
 package com.please.ui.driver.map
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.location.Location
+import android.graphics.*
 import android.os.Bundle
-import android.os.Looper
-import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.google.android.gms.location.*
-import com.kakao.vectormap.*
-import com.kakao.vectormap.camera.CameraPosition
-import com.kakao.vectormap.camera.CameraUpdateFactory
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.*
+import com.please.R
 import com.please.databinding.FragmentDriverMapBinding
-import com.please.data.models.*
-import com.please.data.models.driver.Coordinate
-import com.please.data.models.driver.DestinationState
-import com.please.data.models.driver.NextDestination
-import com.please.data.models.driver.RouteResponse
+import com.please.data.models.driver.*
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
 
 @AndroidEntryPoint
-class DriverMapFragment : Fragment(), TextToSpeech.OnInitListener {
+class DriverMapFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentDriverMapBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: DriverMapViewModel by viewModels()
-    private lateinit var mapView: MapView
-    private var kakaoMap: KakaoMap? = null
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var textToSpeech: TextToSpeech
 
-    // 현재 상태
-    private var currentLocation: LatLng? = null
-    private var isNavigating = false
+    private var googleMap: GoogleMap? = null
 
-    // 권한 요청
-    private val locationPermissionRequest = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
-        if (granted) {
-            startLocationTracking()
-            // 🔥 권한 허용 후 API 호출 (ViewModel이 상태 관리)
-            viewModel.getNextDestination()
-        } else {
-            Toast.makeText(requireContext(), "위치 권한이 필요합니다", Toast.LENGTH_SHORT).show()
-        }
-    }
+    // 🔧 마커 관리 (GPS 완전 제거)
+    private var currentLocationMarker: Marker? = null
+    private var destinationMarker: Marker? = null
+    private var routePolyline: Polyline? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        KakaoMapSdk.init(requireContext().applicationContext, "f353ba92e8fb10d5280a4fbafa486158")
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        textToSpeech = TextToSpeech(requireContext(), this)
-    }
+    // 🔧 논리적 현재 위치만 관리
+    private var logicalCurrentLocation: LatLng? = null
+    private var isNavigationStarted = false
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentDriverMapBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mapView = binding.mapView
 
-        setupMap()
-        setupUI()
-        observeViewModel()
-        checkPermissions()
+        initializeMap()
+        setupObservers()
+        setupClickListeners()
+
+        // 🔧 허브를 기본 시작 위치로 설정
+        initializeLogicalPosition()
+
+        // 처음 로드시 다음 목적지 요청
+        viewModel.getNextDestination()
     }
 
-    private fun setupMap() {
-        mapView.start(object : MapLifeCycleCallback() {
-            override fun onMapDestroy() {}
-            override fun onMapError(error: Exception) {
-                Log.e("MAP", "지도 오류: ${error.message}")
+    private fun initializeMap() {
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment
+        mapFragment?.getMapAsync(this)
+    }
+
+    // 🔧 허브를 기본 시작 위치로 설정
+    private fun initializeLogicalPosition() {
+        val hubLocation = LatLng(37.5299, 126.9648) // 용산역 허브
+        updateLogicalCurrentLocation(hubLocation, "허브 (시작 위치)")
+        viewModel.updateLogicalCurrentPosition(hubLocation)
+        Log.d("TSP_INIT", "🏢 허브를 시작 위치로 설정: $hubLocation")
+    }
+
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map.apply {
+            uiSettings.apply {
+                isZoomControlsEnabled = false
+                isCompassEnabled = true
+                isMyLocationButtonEnabled = false // GPS 관련 UI 비활성화
             }
-        }, object : KakaoMapReadyCallback() {
-            override fun onMapReady(map: KakaoMap) {
-                kakaoMap = map
-                // 기본 서울 중심으로 설정
-                moveCamera(LatLng.from(37.566826, 126.978656), 12)
-            }
-        })
-    }
 
-    private fun setupUI() {
-        binding.actionButton.setOnClickListener {
-            handleActionButtonClick()
-        }
-        showLoadingState()
-    }
-
-    private fun observeViewModel() {
-        // 목적지 상태 관찰
-        viewModel.destinationState.observe(viewLifecycleOwner) { state ->
-            Log.d("FRAGMENT", "🎯 상태 변경: ${state::class.simpleName}")
-            when (state) {
-                is DestinationState.Waiting -> {
-                    showWaitingState(state.message)
-                }
-                is DestinationState.WaitingForOrders -> {
-                    showWaitingForOrdersState(state.message)
-                }
-                is DestinationState.NavigateToPickup -> {
-                    showNavigationState(state.destination, state.route)
-                }
-                is DestinationState.ReturnToHub -> {
-                    showReturnToHubState(state.route)
-                }
-                is DestinationState.AtHub -> {
-                    showCompletedState()
-                }
+            // 🔧 현재 위치로 이동 (새로고침 버튼 길게 누르기)
+            binding.btnRefresh.setOnLongClickListener {
+                logicalCurrentLocation?.let { location ->
+                    googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 16f))
+                    Toast.makeText(requireContext(), "🎯 현재 위치로 이동", Toast.LENGTH_SHORT).show()
+                    true
+                } ?: false
             }
         }
 
-        // 로딩 상태
+        // 서울 중심으로 초기 설정
+        val seoul = LatLng(37.5665, 126.9780)
+        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(seoul, 12f))
+    }
+
+    // 🔧 논리적 현재 위치 업데이트 (GPS 제거됨)
+    private fun updateLogicalCurrentLocation(location: LatLng, title: String = "현재 위치") {
+        logicalCurrentLocation = location
+
+        currentLocationMarker?.remove()
+        currentLocationMarker = googleMap?.addMarker(
+            MarkerOptions()
+                .position(location)
+                .title(title)
+                .snippet("TSP 계산 기준점")
+                .icon(createCurrentLocationIcon())
+                .zIndex(10f)
+        )
+
+        Log.d("TSP_LOCATION", "🎯 논리적 현재 위치 업데이트: $location ($title)")
+    }
+
+    // 🔧 현재 위치용 커스텀 아이콘 (초록색 + 명확한 표시)
+    private fun createCurrentLocationIcon(): BitmapDescriptor {
+        val size = 48
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        // 배경 원
+        val backgroundPaint = Paint().apply {
+            color = 0xFF4CAF50.toInt() // 초록색
+            isAntiAlias = true
+        }
+
+        // 테두리
+        val borderPaint = Paint().apply {
+            color = 0xFFFFFFFF.toInt()
+            isAntiAlias = true
+            strokeWidth = 4f
+            style = Paint.Style.STROKE
+        }
+
+        // 중앙 점
+        val centerPaint = Paint().apply {
+            color = 0xFFFFFFFF.toInt()
+            isAntiAlias = true
+        }
+
+        val center = size / 2f
+        val outerRadius = center - 4
+        val innerRadius = 4f
+
+        // 배경 원
+        canvas.drawCircle(center, center, outerRadius, backgroundPaint)
+        // 테두리
+        canvas.drawCircle(center, center, outerRadius, borderPaint)
+        // 중앙 점
+        canvas.drawCircle(center, center, innerRadius, centerPaint)
+
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
+    }
+
+    // 🔧 목적지 마커 (빨간 핀)
+    private fun createDestinationIcon(): BitmapDescriptor {
+        val size = 56
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        // 빨간색 핀 모양 그리기
+        val paint = Paint().apply {
+            color = 0xFFE53E3E.toInt() // 빨간색
+            isAntiAlias = true
+        }
+
+        val borderPaint = Paint().apply {
+            color = 0xFFFFFFFF.toInt()
+            isAntiAlias = true
+            strokeWidth = 3f
+            style = Paint.Style.STROKE
+        }
+
+        val center = size / 2f
+        val radius = 18f
+
+        // 핀 몸체 (원)
+        canvas.drawCircle(center, center - 8, radius, paint)
+        canvas.drawCircle(center, center - 8, radius, borderPaint)
+
+        // 핀 끝 (삼각형)
+        val path = Path().apply {
+            moveTo(center - 12, center + 8)
+            lineTo(center, center + 20)
+            lineTo(center + 12, center + 8)
+            close()
+        }
+        canvas.drawPath(path, paint)
+        canvas.drawPath(path, borderPaint)
+
+        // 중앙 흰 점
+        val innerPaint = Paint().apply {
+            color = 0xFFFFFFFF.toInt()
+            isAntiAlias = true
+        }
+        canvas.drawCircle(center, center - 8, 6f, innerPaint)
+
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
+    }
+
+    private fun setupObservers() {
+        // 🔧 ViewModel의 논리적 현재 위치 관찰
+        viewModel.logicalCurrentPosition.observe(viewLifecycleOwner) { position ->
+            position?.let {
+                updateLogicalCurrentLocation(it, "TSP 기준 위치")
+            }
+        }
+
+        // 다음 목적지 관찰
+        viewModel.nextDestination.observe(viewLifecycleOwner) { response ->
+            Log.d("TSP_UI", "🎯 다음 목적지 응답: ${response.status}")
+
+            when (response.status) {
+                "waiting" -> {
+                    showWaitingState(response.message ?: "대기 중...")
+                }
+                "waiting_for_orders" -> {
+                    showWaitingForOrdersState(response.message ?: "신규 요청 대기 중...")
+                }
+                "success" -> {
+                    response.nextDestination?.let { destination ->
+                        Log.d("TSP_UI", "📍 수거 목적지: ${destination.name} (${destination.lat}, ${destination.lon})")
+                        showNavigationToPickup(destination, response.route)
+                    }
+                }
+                "return_to_hub" -> {
+                    Log.d("TSP_UI", "🏢 허브 복귀")
+                    response.route?.let { route ->
+                        showReturnToHub(route)
+                    }
+                }
+                "at_hub" -> {
+                    Log.d("TSP_UI", "✅ 허브 도착 완료")
+                    showAtHubState()
+                }
+            }
+        }
+
+        // 로딩 상태 관찰
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        // 🔥 수거 완료 처리 - 여기서 다음 TSP 계산 요청
+        // 에러 메시지 관찰
+        viewModel.errorMessage.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                viewModel.clearError()
+            }
+        }
+
+        // 🔧 수거 완료 결과 관찰
         viewModel.pickupCompleted.observe(viewLifecycleOwner) { completed ->
             if (completed) {
-                Toast.makeText(requireContext(), "수거 완료! 다음 경로 계산 중...", Toast.LENGTH_SHORT).show()
-                Log.d("FRAGMENT", "📦 수거 완료 - 다음 TSP 계산 요청")
-                // 🔥 수거 완료 후에만 새로운 TSP 계산
-                viewModel.getNextDestination()
+                Toast.makeText(requireContext(), "✅ 수거가 완료되었습니다!", Toast.LENGTH_SHORT).show()
+
+                // 🔧 수거 완료한 지점을 새로운 논리적 현재 위치로 설정
+                val completedLocation = destinationMarker?.position
+                completedLocation?.let {
+                    Log.d("TSP_UI", "📍 수거 완료! 새 현재 위치로 설정: $it")
+                    viewModel.updateLogicalCurrentPosition(it)
+                    updateLogicalCurrentLocation(it, "수거 완료 지점")
+                }
+
+                viewModel.clearPickupCompleted()
+
+                // 잠시 후 다음 목적지 요청
+                binding.root.postDelayed({
+                    viewModel.getNextDestination()
+                }, 1000)
             }
         }
 
-        // 허브 도착 완료
+        // 허브 도착 완료 관찰
         viewModel.hubArrivalCompleted.observe(viewLifecycleOwner) { completed ->
             if (completed) {
-                Toast.makeText(requireContext(), "오늘 업무 완료! 수고하셨습니다!", Toast.LENGTH_LONG).show()
-                showCompletedState()
+                Toast.makeText(requireContext(), "🏢 허브 도착 완료! 수고하셨습니다!", Toast.LENGTH_LONG).show()
+
+                // 🔧 허브 도착시 허브를 현재 위치로 설정
+                val hubLocation = LatLng(37.5299, 126.9648)
+                viewModel.updateLogicalCurrentPosition(hubLocation)
+                updateLogicalCurrentLocation(hubLocation, "허브 (용산역)")
+
+                showWorkCompletedState()
+                viewModel.clearHubArrivalCompleted()
             }
         }
     }
 
-    private fun checkPermissions() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED) {
-            startLocationTracking()
+    private fun setupClickListeners() {
+        // 수거 완료 버튼
+        binding.btnComplete.setOnClickListener {
+            Log.d("BUTTON", "🔘 수거 완료 버튼 클릭")
 
-            // 🔥 ViewModel이 상태 관리하므로 항상 호출 (중복 방지는 ViewModel에서 처리)
+            val destination = viewModel.nextDestination.value?.nextDestination
+            val parcelId = destination?.parcelId
+
+            if (!parcelId.isNullOrEmpty()) {
+                Log.d("TSP_UI", "📦 수거 완료 처리: $parcelId")
+                viewModel.completePickup(parcelId)
+            } else {
+                Toast.makeText(requireContext(), "수거할 소포 정보가 없습니다", Toast.LENGTH_SHORT).show()
+                Log.w("TSP_UI", "⚠️ parcelId가 없음")
+            }
+        }
+
+        // 허브 도착 버튼
+        binding.btnArriveHub.setOnClickListener {
+            Log.d("BUTTON", "🏢 허브 도착 버튼 클릭")
+            viewModel.completeHubArrival()
+        }
+
+        // 새로고침 버튼
+        binding.btnRefresh.setOnClickListener {
+            Log.d("BUTTON", "🔄 새로고침 버튼 클릭")
             viewModel.getNextDestination()
-        } else {
-            locationPermissionRequest.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
         }
-    }
 
-    @SuppressLint("MissingPermission")
-    private fun startLocationTracking() {
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
-            .setMinUpdateIntervalMillis(2000)
-            .build()
-
-        val locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                locationResult.lastLocation?.let { location ->
-                    updateCurrentLocation(location)
-                }
+        // 🔧 내 위치 버튼 - 현재 논리적 위치로 이동
+        binding.btnMyLocation.setOnClickListener {
+            logicalCurrentLocation?.let { location ->
+                googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 16f))
+                Toast.makeText(requireContext(), "📍 현재 위치로 이동", Toast.LENGTH_SHORT).show()
+            } ?: run {
+                Toast.makeText(requireContext(), "현재 위치 정보가 없습니다", Toast.LENGTH_SHORT).show()
             }
         }
 
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
-    }
-
-    private fun updateCurrentLocation(location: Location) {
-        val newLocation = LatLng.from(location.latitude, location.longitude)
-        currentLocation = newLocation
-
-        // 네비게이션 중일 때만 카메라가 따라감
-        if (isNavigating) {
-            moveCamera(newLocation, 16)
+        // 🔧 외부 네비게이션 시작 버튼
+        binding.btnNavigation?.setOnClickListener {
+            val destination = viewModel.nextDestination.value?.nextDestination
+            destination?.let { dest ->
+                startExternalNavigation(dest.lat, dest.lon, dest.name)
+            } ?: run {
+                Toast.makeText(requireContext(), "목적지 정보가 없습니다", Toast.LENGTH_SHORT).show()
+            }
         }
-
-        viewModel.updateCurrentLocation(location.latitude, location.longitude)
     }
 
-    private fun moveCamera(location: LatLng, zoomLevel: Int) {
-        val cameraPosition = CameraPosition.from(location.latitude, location.longitude, zoomLevel, 0.0, 0.0, 0.0)
-        kakaoMap?.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-    }
+    // 🔧 외부 네비게이션 앱 실행
+    private fun startExternalNavigation(lat: Double, lon: Double, name: String) {
+        try {
+            // 구글맵 네비게이션 실행
+            val gmmIntentUri = android.net.Uri.parse("google.navigation:q=$lat,$lon")
+            val mapIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, gmmIntentUri)
+            mapIntent.setPackage("com.google.android.apps.maps")
 
-    // 상태별 UI 업데이트 함수들 (기존과 동일)
-    private fun showLoadingState() {
-        binding.tvTitle.text = "경로 계산 중..."
-        binding.bottomPanel.visibility = View.GONE
-        binding.actionButton.visibility = View.GONE
-        isNavigating = false
+            if (mapIntent.resolveActivity(requireContext().packageManager) != null) {
+                startActivity(mapIntent)
+                Log.d("NAVIGATION", "🗺️ 구글맵 네비게이션 시작: $name")
+            } else {
+                // 구글맵이 없으면 기본 지도 앱으로
+                val fallbackUri = android.net.Uri.parse("geo:$lat,$lon?q=$lat,$lon($name)")
+                val fallbackIntent = android.content.Intent(android.content.Intent.ACTION_VIEW, fallbackUri)
+                startActivity(fallbackIntent)
+                Log.d("NAVIGATION", "🗺️ 기본 지도 앱으로 네비게이션 시작: $name")
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "네비게이션 앱을 실행할 수 없습니다", Toast.LENGTH_SHORT).show()
+            Log.e("NAVIGATION", "❌ 네비게이션 실행 실패", e)
+        }
     }
 
     private fun showWaitingState(message: String) {
-        Log.d("FRAGMENT", "⏰ 대기 상태 UI 표시")
-        binding.tvTitle.text = "업무 대기 중"
-        binding.tvCurrentStatus.text = message
-        binding.bottomPanel.visibility = View.VISIBLE
-        binding.actionButton.visibility = View.GONE
-        binding.tvDestinationAddress.visibility = View.GONE
-        binding.tvRemainingCount.text = "-"
-        binding.tvEstimatedTime.text = "-"
-        binding.tvArrivalTime.text = "-"
-        isNavigating = false
+        binding.apply {
+            tvStatus.text = "⏰ 대기 중"
+            tvDestination.text = message
+            tvDistance.text = ""
+            tvEta.text = ""
+
+            btnComplete.visibility = View.GONE
+            btnArriveHub.visibility = View.GONE
+            btnRefresh.visibility = View.VISIBLE
+        }
+
+        clearMapMarkersAndRoute()
+        isNavigationStarted = false
     }
 
     private fun showWaitingForOrdersState(message: String) {
-        Log.d("FRAGMENT", "📋 주문 대기 상태 UI 표시")
-        binding.tvTitle.text = "새 주문 대기 중"
-        binding.tvCurrentStatus.text = message
-        binding.bottomPanel.visibility = View.VISIBLE
-        binding.actionButton.visibility = View.GONE
-        binding.tvDestinationAddress.visibility = View.GONE
-        binding.tvRemainingCount.text = "-"
-        binding.tvEstimatedTime.text = "-"
-        binding.tvArrivalTime.text = "-"
-        isNavigating = false
-    }
+        binding.apply {
+            tvStatus.text = "📋 신규 요청 대기"
+            tvDestination.text = message
+            tvDistance.text = ""
+            tvEta.text = ""
 
-    private fun showNavigationState(destination: NextDestination, route: RouteResponse) {
-        Log.d("FRAGMENT", "🎯 수거 네비게이션 UI 표시: ${destination.name}")
-        binding.tvTitle.text = "수거지로 이동"
-        binding.tvCurrentStatus.text = "다음 목적지로 이동 중..."
-        binding.tvDestinationAddress.text = destination.address
-        binding.tvDestinationAddress.visibility = View.VISIBLE
-
-        // 남은 수거 개수
-        binding.tvRemainingCount.text = "${viewModel.getRemainingPickups()}개"
-
-        // 예상 시간 계산
-        route.trip?.summary?.time?.let { timeInSeconds ->
-            val minutes = (timeInSeconds / 60).toInt()
-            binding.tvEstimatedTime.text = "${minutes}분"
-
-            // 도착 예정 시간 계산
-            val currentTime = Calendar.getInstance()
-            currentTime.add(Calendar.MINUTE, minutes)
-            val arrivalTime = String.format("%02d:%02d",
-                currentTime.get(Calendar.HOUR_OF_DAY),
-                currentTime.get(Calendar.MINUTE)
-            )
-            binding.tvArrivalTime.text = arrivalTime
-        } ?: run {
-            binding.tvEstimatedTime.text = "계산 중"
-            binding.tvArrivalTime.text = "-"
+            btnComplete.visibility = View.GONE
+            btnArriveHub.visibility = View.GONE
+            btnRefresh.visibility = View.VISIBLE
         }
 
-        // 목적지로 카메라 이동
-        moveCamera(LatLng.from(destination.lat, destination.lon), 15)
-
-        // 경로 그리기 시도
-        drawRoute(route.coordinates ?: emptyList())
-
-        // 음성 안내
-        route.waypoints?.firstOrNull()?.let { waypoint ->
-            announceNavigation(waypoint.instruction)
-        }
-
-        // 버튼 설정 - 수거 완료
-        binding.actionButton.text = "수거 완료"
-        binding.actionButton.backgroundTintList = ContextCompat.getColorStateList(requireContext(), android.R.color.holo_green_dark)
-        binding.actionButton.visibility = View.VISIBLE
-        binding.bottomPanel.visibility = View.VISIBLE
-
-        isNavigating = true
+        clearMapMarkersAndRoute()
     }
 
-    private fun showReturnToHubState(route: RouteResponse) {
-        Log.d("FRAGMENT", "🏠 허브 복귀 UI 표시")
-        binding.tvTitle.text = "허브 복귀 중"
-        binding.tvCurrentStatus.text = "허브로 복귀 중입니다..."
-        binding.tvDestinationAddress.text = "용산역 (허브)"
-        binding.tvDestinationAddress.visibility = View.VISIBLE
-        binding.tvRemainingCount.text = "0개"
+    private fun showNavigationToPickup(destination: NextDestination, route: RouteResponse?) {
+        isNavigationStarted = true
 
-        // 허브까지 시간 계산
-        route.trip?.summary?.time?.let { timeInSeconds ->
-            val minutes = (timeInSeconds / 60).toInt()
-            binding.tvEstimatedTime.text = "${minutes}분"
+        binding.apply {
+            tvStatus.text = "🚚 수거 진행 중"
+            tvDestination.text = "${destination.name}\n${destination.address}"
 
-            val currentTime = Calendar.getInstance()
-            currentTime.add(Calendar.MINUTE, minutes)
-            val arrivalTime = String.format("%02d:%02d",
-                currentTime.get(Calendar.HOUR_OF_DAY),
-                currentTime.get(Calendar.MINUTE)
-            )
-            binding.tvArrivalTime.text = arrivalTime
-        } ?: run {
-            binding.tvEstimatedTime.text = "계산 중"
-            binding.tvArrivalTime.text = "-"
-        }
-
-        // 허브로 카메라 이동 (용산역)
-        moveCamera(LatLng.from(37.5299, 126.9648), 15)
-
-        // 경로 그리기
-        drawRoute(route.coordinates ?: emptyList())
-
-        // 버튼 설정 - 허브 도착
-        binding.actionButton.text = "허브 도착"
-        binding.actionButton.backgroundTintList = ContextCompat.getColorStateList(requireContext(), android.R.color.holo_blue_dark)
-        binding.actionButton.visibility = View.VISIBLE
-        binding.bottomPanel.visibility = View.VISIBLE
-
-        isNavigating = true
-    }
-
-    private fun showCompletedState() {
-        Log.d("FRAGMENT", "✅ 업무 완료 UI 표시")
-        binding.tvTitle.text = "업무 완료"
-        binding.tvCurrentStatus.text = "오늘 업무가 모두 완료되었습니다!"
-        binding.tvDestinationAddress.visibility = View.GONE
-        binding.tvRemainingCount.text = "0개"
-        binding.tvEstimatedTime.text = "-"
-        binding.tvArrivalTime.text = "-"
-        binding.bottomPanel.visibility = View.VISIBLE
-        binding.actionButton.visibility = View.GONE
-        isNavigating = false
-    }
-
-    private fun handleActionButtonClick() {
-        Log.d("FRAGMENT", "🔘 액션 버튼 클릭: ${binding.actionButton.text}")
-        when (binding.actionButton.text.toString()) {
-            "수거 완료" -> {
-                Log.d("FRAGMENT", "📦 수거 완료 버튼 클릭")
-                viewModel.completeCurrentPickup()
+            route?.trip?.summary?.let { summary ->
+                tvDistance.text = "거리: ${String.format("%.1f", summary.length)} km"
+                tvEta.text = "예상시간: ${(summary.time / 60).toInt()}분"
+                Log.d("TSP_UI", "📏 거리: ${summary.length}km, 시간: ${summary.time}초")
             }
-            "허브 도착" -> {
-                Log.d("FRAGMENT", "🏠 허브 도착 버튼 클릭")
-                viewModel.completeHubArrival()
+
+            btnComplete.visibility = View.VISIBLE
+            btnArriveHub.visibility = View.GONE
+            btnRefresh.visibility = View.VISIBLE
+        }
+
+        val destinationLatLng = LatLng(destination.lat, destination.lon)
+        showDestinationOnMap(destinationLatLng, destination.name)
+        Log.d("TSP_UI", "📍 목적지 마커 표시: (${destination.lat}, ${destination.lon})")
+
+        route?.let {
+            showRouteOnMap(it)
+            Log.d("TSP_UI", "🛣️ 경로 표시: ${it.coordinates?.size ?: 0}개 좌표")
+        }
+    }
+
+    private fun showReturnToHub(route: RouteResponse) {
+        binding.apply {
+            tvStatus.text = "🏢 허브 복귀 중"
+            tvDestination.text = "모든 수거 완료\n허브로 복귀해주세요"
+
+            route.trip?.summary?.let { summary ->
+                tvDistance.text = "거리: ${String.format("%.1f", summary.length)} km"
+                tvEta.text = "예상시간: ${(summary.time / 60).toInt()}분"
             }
+
+            btnComplete.visibility = View.GONE
+            btnArriveHub.visibility = View.VISIBLE
+            btnRefresh.visibility = View.VISIBLE
+        }
+
+        val hubLocation = LatLng(37.5299, 126.9648)
+        showDestinationOnMap(hubLocation, "용산역 허브")
+        showRouteOnMap(route)
+    }
+
+    private fun showAtHubState() {
+        binding.apply {
+            tvStatus.text = "✅ 업무 완료"
+            tvDestination.text = "허브에 도착했습니다\n오늘 업무가 완료되었습니다!"
+            tvDistance.text = ""
+            tvEta.text = ""
+
+            btnComplete.visibility = View.GONE
+            btnArriveHub.visibility = View.GONE
+            btnRefresh.visibility = View.VISIBLE
+        }
+
+        clearMapMarkersAndRoute()
+    }
+
+    private fun showWorkCompletedState() {
+        binding.apply {
+            tvStatus.text = "🎉 수고하셨습니다!"
+            tvDestination.text = "오늘의 모든 업무가 완료되었습니다"
+            tvDistance.text = ""
+            tvEta.text = ""
+
+            btnComplete.visibility = View.GONE
+            btnArriveHub.visibility = View.GONE
+            btnRefresh.visibility = View.VISIBLE
         }
     }
 
-    private fun drawRoute(coordinates: List<Coordinate>) {
-        if (coordinates.isEmpty()) return
+    private fun showDestinationOnMap(destination: LatLng, title: String) {
+        destinationMarker?.remove()
 
-        try {
-            Log.d("MAP", "🗺️ 경로 그리기: ${coordinates.size}개 지점")
-            // TODO: 실제 폴리라인 그리기 구현
-        } catch (e: Exception) {
-            Log.e("MAP", "❌ 경로 그리기 오류: ${e.message}")
+        destinationMarker = googleMap?.addMarker(
+            MarkerOptions()
+                .position(destination)
+                .title(title)
+                .snippet("목적지")
+                .icon(createDestinationIcon())
+                .zIndex(15f) // 가장 위에 표시
+        )
+
+        // 🔧 스마트한 카메라 조정
+        logicalCurrentLocation?.let { current ->
+            val distance = calculateDistance(current, destination)
+
+            if (distance < 100) { // 100미터 미만이면 단일 지점으로 표시
+                googleMap?.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(destination, 18f) // 더 확대
+                )
+                Log.d("TSP_UI", "📷 카메라: 가까운 거리로 확대")
+            } else {
+                // 멀리 떨어져 있으면 둘 다 보이게
+                val builder = LatLngBounds.Builder()
+                builder.include(current)
+                builder.include(destination)
+
+                val bounds = builder.build()
+                val padding = 200
+
+                googleMap?.animateCamera(
+                    CameraUpdateFactory.newLatLngBounds(bounds, padding)
+                )
+                Log.d("TSP_UI", "📷 카메라: 현재위치 & 목적지 포함")
+            }
+        } ?: run {
+            googleMap?.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(destination, 15f)
+            )
+            Log.d("TSP_UI", "📷 카메라: 목적지만")
         }
     }
 
-    private fun announceNavigation(instruction: String) {
-        if (::textToSpeech.isInitialized && !textToSpeech.isSpeaking) {
-            textToSpeech.speak(instruction, TextToSpeech.QUEUE_FLUSH, null, null)
+    // 🔧 거리 계산 함수
+    private fun calculateDistance(pos1: LatLng, pos2: LatLng): Double {
+        val earthRadius = 6371000.0 // 지구 반지름(미터)
+
+        val lat1Rad = Math.toRadians(pos1.latitude)
+        val lat2Rad = Math.toRadians(pos2.latitude)
+        val deltaLatRad = Math.toRadians(pos2.latitude - pos1.latitude)
+        val deltaLonRad = Math.toRadians(pos2.longitude - pos1.longitude)
+
+        val a = Math.sin(deltaLatRad / 2) * Math.sin(deltaLatRad / 2) +
+                Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+                Math.sin(deltaLonRad / 2) * Math.sin(deltaLonRad / 2)
+
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        return earthRadius * c
+    }
+
+    private fun showRouteOnMap(route: RouteResponse) {
+        routePolyline?.remove()
+
+        route.coordinates?.let { coordinates ->
+            if (coordinates.isNotEmpty()) {
+                val polylineOptions = PolylineOptions().apply {
+                    coordinates.forEach { coord ->
+                        add(LatLng(coord.lat, coord.lon))
+                    }
+
+                    // 🎨 네비게이션 스타일 설정
+                    color(0xFF4285F4.toInt())  // 구글 블루 색상
+                    width(10f)                 // 적당한 두께
+                    geodesic(true)            // 지구 곡률 반영
+                    jointType(JointType.ROUND) // 둥근 연결점
+                    startCap(RoundCap())      // 둥근 시작점
+                    endCap(RoundCap())        // 둥근 끝점
+                }
+
+                routePolyline = googleMap?.addPolyline(polylineOptions)
+                Log.d("TSP_UI", "🛣️ 경로 그리기 완료: ${coordinates.size}개 점")
+            } else {
+                Log.w("TSP_UI", "⚠️ 경로 좌표가 비어있음")
+            }
+        } ?: run {
+            Log.w("TSP_UI", "⚠️ 경로 데이터가 없음")
         }
-        Log.d("TTS", "🔊 음성 안내: $instruction")
     }
 
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            textToSpeech.setLanguage(Locale.KOREAN)
-        }
-    }
+    private fun clearMapMarkersAndRoute() {
+        destinationMarker?.remove()
+        routePolyline?.remove()
+        destinationMarker = null
+        routePolyline = null
 
-    override fun onResume() {
-        super.onResume()
-        mapView.resume()
-        Log.d("FRAGMENT", "📱 Fragment onResume - ViewModel이 상태 관리")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mapView.pause()
-        Log.d("FRAGMENT", "📱 Fragment onPause")
+        // 현재 위치 마커는 유지
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (::textToSpeech.isInitialized) {
-            textToSpeech.shutdown()
-        }
-        Log.d("FRAGMENT", "📱 Fragment onDestroyView")
         _binding = null
     }
 }
