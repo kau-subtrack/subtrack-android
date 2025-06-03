@@ -134,15 +134,23 @@ class SellerDeliveryFragment : Fragment() {
             when (mode) {
 
                 SellerDeliveryViewModel.DeliveryMode.REGISTER -> {
+                    // 등록 모드 UI 업데이트
                     binding.btnRegister.setBackgroundResource(R.drawable.bg_button_selected)
                     binding.btnRegister.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     binding.btnView.setBackgroundResource(R.drawable.bg_button_unselected)
                     binding.btnView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                     binding.fabAddDelivery.visibility = View.VISIBLE
                     binding.tvRegisterInfo.visibility = View.VISIBLE
+                    binding.tvRegisterInfo.text = "등록 모드에서는 오늘 날짜만 사용 가능합니다."
                     deliveryAdapter.setDeleteButtonVisible(true)
+                    
+                    // 등록 모드에서는 스피너 비활성화
+                    binding.spinnerYear.isEnabled = false
+                    binding.spinnerMonth.isEnabled = false
+                    binding.spinnerDay.isEnabled = false
                 }
                 SellerDeliveryViewModel.DeliveryMode.VIEW -> {
+                    // 조회 모드 UI 업데이트
                     binding.btnView.setBackgroundResource(R.drawable.bg_button_selected)
                     binding.btnView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
                     binding.btnRegister.setBackgroundResource(R.drawable.bg_button_unselected)
@@ -150,6 +158,11 @@ class SellerDeliveryFragment : Fragment() {
                     binding.fabAddDelivery.visibility = View.GONE
                     binding.tvRegisterInfo.visibility = View.GONE
                     deliveryAdapter.setDeleteButtonVisible(false)
+                    
+                    // 조회 모드에서는 스피너 활성화
+                    binding.spinnerYear.isEnabled = true
+                    binding.spinnerMonth.isEnabled = true
+                    binding.spinnerDay.isEnabled = true
                 }
             }
         }

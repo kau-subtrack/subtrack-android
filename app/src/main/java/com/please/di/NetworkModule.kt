@@ -8,6 +8,7 @@ import com.please.data.api.PathAiDeliveryApi
 import com.please.data.api.PathAiPickupApi
 import com.please.data.api.SellerProfileApi
 import com.please.data.api.SubscriptionApi
+import com.please.data.api.TspApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,6 +29,7 @@ const val BASE_URL_GEOMERTY = "https://maps.googleapis.com/"
 const val BASE_URL_PATH_AI = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com/api/" //api to optimal
 const val BASE_URL_PATH_RAW_AI = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com/api/" //api.
 const val BASE_URL_CHAT_AI = "https://api.example.com/"
+const val BASE_URL_TSP = "http://elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com:8080/"
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -86,9 +88,9 @@ object NetworkModule {
     @Named("geometry")
     fun provideGeometryRetrofit(): Retrofit {
         return Retrofit.Builder()
-        .baseUrl(BASE_URL_GEOMERTY)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+            .baseUrl(BASE_URL_GEOMERTY)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
     }
 
     @Provides
@@ -137,6 +139,24 @@ object NetworkModule {
             .baseUrl(BASE_URL_CHAT_AI)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    // ===== TSP API 추가 =====
+    @Provides
+    @Singleton
+    @Named("tsp")
+    fun provideTspRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL_TSP)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideTspApiService(@Named("tsp") retrofit: Retrofit): TspApiService {
+        return retrofit.create(TspApiService::class.java)
     }
 
     /*

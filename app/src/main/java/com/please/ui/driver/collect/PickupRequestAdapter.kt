@@ -34,9 +34,9 @@ class PickupRequestAdapter(
                 // 주소 표시
                 holder.addressText.text = "${item.address}, ${item.detailAddress}"
                 
-                // 상품 정보 및 수거 시간대 표시
+                // 상품 정보
                 val parcelCountText = if (item.parcelCount > 1) "${item.parcelCount}개" else "1개"
-                holder.productInfoText.text = "제품명: ${item.productName} ($parcelCountText)\n수거시간: ${item.pickupTimeWindow}"
+                holder.productInfoText.text = "제품명: ${item.productName} ($parcelCountText)"
                 
                 // 수거 완료 버튼 설정
                 holder.completeButton.setOnClickListener {

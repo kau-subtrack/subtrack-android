@@ -2,5 +2,8 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">elb-subtrack-alb-535559136.ap-northeast-2.elb.amazonaws.com</domain>
+        <domain includeSubdomains="true">ec2-43-200-131-230.ap-northeast-2.compute.amazonaws.com</domain>
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
     </domain-config>
 </network-security-config>

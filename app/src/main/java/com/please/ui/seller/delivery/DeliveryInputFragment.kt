@@ -66,6 +66,7 @@ class DeliveryInputFragment : Fragment() {
             viewModel.setAddress("서울시 강남구 테헤란로 123")
         }
         */
+
         
         // 저장 버튼
         binding.btnSave.setOnClickListener {
@@ -73,6 +74,8 @@ class DeliveryInputFragment : Fragment() {
             viewModel.setProductName(binding.etProductName.text.toString())
             viewModel.setRecipientName(binding.etRecipientName.text.toString())
             viewModel.setRecipientPhone(binding.etRecipientPhone.text.toString())
+
+            viewModel.setAddress(binding.etAddress.text.toString())
             
             // 상세 주소 설정
             if (binding.etDetailAddress.text.isNotEmpty()) {
