@@ -1,14 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 기본 색상 -->
+    <color name="primary_color">#2196F3</color>
+    <color name="primary_dark">#1976D2</color>
+    <color name="accent_color">#FF5722</color>
+
+    <!-- 기능별 색상 -->
+    <color name="success_color">#4CAF50</color>
+    <color name="warning_color">#FF9800</color>
+    <color name="error_color">#F44336</color>
+    <color name="hub_color">#9C27B0</color>
+
+    <!-- 텍스트 색상 -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+
+    <!-- 배경 색상 -->
+    <color name="background_primary">#FFFFFF</color>
+    <color name="background_secondary">#F5F5F5</color>
+
+    <!-- 경로 색상 -->
+    <color name="route_color">#2196F3</color>
+
+    <!-- 기존 색상들 -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="green">#FF4CAF50</color>
-    <color name="red">#FFF44336</color>
-    <color name="blue">#FF2196F3</color>
-    <color name="gray">#FF9E9E9E</color>
-    
+    <color name="red">#F44336</color>
+    <color name="green">#4CAF50</color>
+    <color name="blue">#2196F3</color>
+
     <!-- 배송 상태 색상 -->
-    <color name="delivery_pending">#FF9E9E9E</color>
-    <color name="delivery_in_progress">#FF2196F3</color>
-    <color name="delivery_delivered">#FF4CAF50</color>
+    <color name="delivery_pending">#FF9800</color>
+    <color name="delivery_in_progress">#2196F3</color>
+    <color name="delivery_delivered">#4CAF50</color>
+
+    <!-- 🔧 지도 UI 추가 색상들 -->
+    <color name="background_light">#F5F5F5</color>
+    <color name="navigation_color">#2196F3</color>
+    <color name="divider">#E0E0E0</color>
+    <color name="card_background">#FFFFFF</color>
+
+    <!-- 상태별 색상 -->
+    <color name="status_waiting">#FFC107</color>
+    <color name="status_active">#4CAF50</color>
+    <color name="status_completed">#2196F3</color>
+    <color name="status_error">#F44336</color>
 </resources>

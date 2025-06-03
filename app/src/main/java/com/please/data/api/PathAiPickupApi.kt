@@ -1,27 +1,28 @@
 package com.please.data.api
 
-import com.please.data.models.driver.HealthResponse
-import com.please.data.models.driver.ParceIdRequest
-import com.please.data.models.driver.PickAllResponse
-import com.please.data.models.driver.WebhookResponse
+import com.please.data.models.driver.*
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface PathAiPickupApi {
-    object AppUser {
-        var userId: String = "0"
-    }
 
     @POST("pickup/webhook")
     suspend fun postWebhook(@Body id: ParceIdRequest): Response<WebhookResponse>
 
-    //@POST(value = "pickup/next/$userId") // 4 is num -> val. how..? - 흠... 안되는데? 그렇다고 1~5까지 그럴수는없고.
-    //suspend fun postPickNext(@Body id: ParceIdRequest): Response<PathAiNextResponse>
+    // 🔧 수정: GET으로 변경하고 인증 헤더 추가
+    @GET("pickup/next")
+    suspend fun getPickupNext(@Header("Authorization") authorization: String): Response<NextDestinationResponse>
 
+    // 🔧 수정: 완료 API 추가
     @POST("pickup/complete")
-    suspend fun postPickCom(@Body id: ParceIdRequest): Response<HealthResponse>
+    suspend fun postPickupComplete(
+        @Header("Authorization") authorization: String,
+        @Body request: CompletePickupRequest
+    ): Response<TspApiResponse>
+
+    // 🔧 추가: 허브 도착 API
+    @POST("pickup/hub-arrived")
+    suspend fun postHubArrival(@Header("Authorization") authorization: String): Response<TspApiResponse>
 
     @GET("pickup/all-completed")
     suspend fun postPickAll(): Response<PickAllResponse>

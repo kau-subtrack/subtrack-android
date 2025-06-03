@@ -62,22 +62,29 @@ class SellerDeliveryViewModel @Inject constructor(
         val mode = _mode.value ?: DeliveryMode.REGISTER
         val calendar = Calendar.getInstance()
 
-        val initialDate = when (mode) {
-            DeliveryMode.REGISTER -> calendar.apply { add(Calendar.DAY_OF_MONTH, 1) }.time
-            DeliveryMode.VIEW -> calendar.time
-        }
-
+        // 등록모드와 조회모드 모두 오늘 날짜를 기본값으로 설정
+        val initialDate = calendar.time
         _selectedDate.value = initialDate
         updateDateOptionsForMode(mode)
 
         loadDeliveries(initialDate)
     }
 
-    //등록, 조회 변경 시 리스트 재조회
+    //등록, 조회 변경 시 리스트 재조회 및 날짜 리셋
     fun setMode(newMode: DeliveryMode) {
         if (_mode.value == newMode) return
+        
         _mode.value = newMode
-        _selectedDate.value?.let { loadDeliveries(it) }
+        
+        // 모드가 변경되면 항상 오늘 날짜로 재설정
+        val today = Calendar.getInstance().time
+        _selectedDate.value = today
+        
+        // 모드에 맞게 날짜 옵션 업데이트
+        updateDateOptionsForMode(newMode)
+        
+        // 새로운 날짜로 배송 목록 로드
+        loadDeliveries(today)
     }
 
     // 연도
@@ -117,8 +124,8 @@ class SellerDeliveryViewModel @Inject constructor(
         val currentYear = now.get(Calendar.YEAR)
 
         currentYearList = when (mode) {
-            DeliveryMode.REGISTER -> listOf(currentYear, currentYear + 1)
-            DeliveryMode.VIEW -> listOf(currentYear - 1, currentYear, currentYear + 1)
+            DeliveryMode.REGISTER -> listOf(currentYear) // 등록 모드에서는 오늘 연도만 표시
+            DeliveryMode.VIEW -> listOf(currentYear - 1, currentYear, currentYear + 1) // 조회 모드에서는 작년부터 내년까지
         }
         _yearOptions.value = currentYearList.map { "${it}년" }
 
@@ -128,45 +135,42 @@ class SellerDeliveryViewModel @Inject constructor(
 
     fun updateMonthOptions() {
         val now = Calendar.getInstance()
-        val currentYear = now.get(Calendar.YEAR)
         val currentMonth = now.get(Calendar.MONTH) + 1
 
-        val selected = Calendar.getInstance().apply { time = _selectedDate.value ?: Date() }
-        val selectedYear = selected.get(Calendar.YEAR)
-        val mode = _mode.value ?: DeliveryMode.REGISTER
-
-        currentMonthList = when (mode) {
+        currentMonthList = when (_mode.value ?: DeliveryMode.REGISTER) {
             DeliveryMode.REGISTER -> {
-                if (selectedYear == currentYear) (currentMonth..12).toList()
-                else (1..12).toList()
+                // 등록 모드에서는 현재 월만 선택 가능
+                listOf(currentMonth)
             }
-            DeliveryMode.VIEW -> (1..12).toList()
+            DeliveryMode.VIEW -> {
+                // 조회 모드에서는 모든 월 선택 가능
+                (1..12).toList()
+            }
         }
         _monthOptions.value = currentMonthList.map { "${it}월" }
     }
 
+
     // 전체 날짜 수정
     fun updateDayOptions() {
         val now = Calendar.getInstance()
-        val currentYear = now.get(Calendar.YEAR)
-        val currentMonth = now.get(Calendar.MONTH) + 1
         val currentDay = now.get(Calendar.DAY_OF_MONTH)
 
         val selected = Calendar.getInstance().apply { time = _selectedDate.value ?: Date() }
-        val year = selected.get(Calendar.YEAR)
-        val month = selected.get(Calendar.MONTH) + 1
-
         val lastDay = selected.getActualMaximum(Calendar.DAY_OF_MONTH)
         val mode = _mode.value ?: DeliveryMode.REGISTER
 
-        val startDay = when (mode) {
+        currentDayList = when (mode) {
             DeliveryMode.REGISTER -> {
-                if (year == currentYear && month == currentMonth) currentDay + 1 else 1
+                // 등록 모드에서는 오늘 날짜만 선택 가능
+                listOf(currentDay)
             }
-            DeliveryMode.VIEW -> 1
+            DeliveryMode.VIEW -> {
+                // 조회 모드에서는 월의 모든 날짜 선택 가능
+                (1..lastDay).toList()
+            }
         }
-
-        currentDayList = (startDay..lastDay).toList()
+        
         _dayOptions.value = currentDayList.map { "${it}일" }
     }
 
@@ -181,15 +185,14 @@ class SellerDeliveryViewModel @Inject constructor(
 
         return when (_mode.value) {
             DeliveryMode.REGISTER -> {
-                val minDate = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, 1) }
-                val maxDate = Calendar.getInstance().apply {
-                    set(Calendar.YEAR, cal.get(Calendar.YEAR) + 1)
-                    set(Calendar.MONTH, 11)
-                    set(Calendar.DAY_OF_MONTH, 31)
-                }
-                !selected.before(minDate) && !selected.after(maxDate)
+                // 등록 모드에서는 오늘 날짜만 유효
+                val today = Calendar.getInstance()
+                selected.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+                selected.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
+                selected.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)
             }
             DeliveryMode.VIEW -> {
+                // 조회 모드에서는 과거 1년부터 미래 1년까지 선택 가능
                 val minDate = Calendar.getInstance().apply { add(Calendar.YEAR, -1); set(Calendar.MONTH, 0); set(Calendar.DAY_OF_MONTH, 1) }
                 val maxDate = Calendar.getInstance().apply { add(Calendar.YEAR, 1); set(Calendar.MONTH, 11); set(Calendar.DAY_OF_MONTH, 31) }
                 !selected.before(minDate) && !selected.after(maxDate)
@@ -200,12 +203,8 @@ class SellerDeliveryViewModel @Inject constructor(
 
     //추가 관련
     fun onAddDeliveryClicked(): Date? {
-        val date = _selectedDate.value ?: return null
-        val cal = Calendar.getInstance().apply { time = date }
-        val y = cal.get(Calendar.YEAR)
-        val m = cal.get(Calendar.MONTH) + 1
-        val d = cal.get(Calendar.DAY_OF_MONTH)
-        return if (isValidDateSelection(y, m, d)) date else null
+        // 등록 모드에서는 항상 오늘 날짜만 리턴
+        return Calendar.getInstance().time
     }
 
     // !!! 날짜 기반 리스트 가져오기 = 실제 사용값 _deliveryList. 고정 변수값 _repository내 return값.

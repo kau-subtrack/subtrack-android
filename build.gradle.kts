@@ -18,6 +18,10 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // 카카오맵 SDK 저장소 추가
+        maven { url = uri("https://devrepo.kakao.com/nexus/content/groups/public/") }
+        maven { url = uri("https://maven.google.com") }
+        maven { url = uri("https://jitpack.io") }
     }
 }
 

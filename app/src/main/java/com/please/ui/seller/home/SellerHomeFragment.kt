@@ -65,7 +65,7 @@ class SellerHomeFragment : Fragment(), OnMapReadyCallback {
 
                     //이중 data
                     val data = state.data.data
-                    val storeLocation = data.store.address + " " + data.store.detailAddress
+                    val storeLocation = data.store.address //+ " " + data.store.detailAddress
 
                     // 가게 위치 정보 설정
                     binding.tvStoreAddress.text = storeLocation //data.data.storeInfo storeInfo.address
