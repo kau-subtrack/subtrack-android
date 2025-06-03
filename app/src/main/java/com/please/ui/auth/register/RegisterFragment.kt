@@ -122,18 +122,19 @@ class RegisterFragment : Fragment() {
                 UserType.OWNER -> {
                     val businessNumber = binding.etBusinessNumber.text.toString()
                     val address = binding.etAddress.text.toString()
+                    val detailAddress = binding.etAddressDetail.text.toString()
                     
                     /*
                      TODO(소상공인 회원가입 ui 변경점 추가)
                     1. name 입력란 추가
-                    2. detailAddress 입력란 추가
+                    2. detailAddress 입력란 추가 ✓ 완료
                     3. latitude 계산 후 추가 - 주소기준
                     4. longitude 계산 후 추가 
                      */
                     viewModel.register(
                         id, password, "name", UserType.OWNER,
                         address,
-                        detailAddress = "강남", latitude = 15.1, longitude = 15.1
+                        detailAddress = detailAddress, latitude = 15.1, longitude = 15.1
                     )
                 }
                 UserType.DRIVER -> {
