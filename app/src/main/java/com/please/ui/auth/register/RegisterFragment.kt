@@ -127,7 +127,7 @@ class RegisterFragment : Fragment() {
                     /*
                      TODO(소상공인 회원가입 ui 변경점 추가)
                     1. name 입력란 추가
-                    2. detailAddress 입력란 추가 ✓ 완료
+                    2. detailAddress 입력란 추가
                     3. latitude 계산 후 추가 - 주소기준
                     4. longitude 계산 후 추가 
                      */
