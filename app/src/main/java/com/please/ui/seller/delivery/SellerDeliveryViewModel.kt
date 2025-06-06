@@ -67,7 +67,9 @@ class SellerDeliveryViewModel @Inject constructor(
         _selectedDate.value = initialDate
         updateDateOptionsForMode(mode)
 
-        loadDeliveries(initialDate)
+        //loadDeliveries(initialDate)
+
+        //loadTwoDays()
     }
 
     //등록, 조회 변경 시 리스트 재조회 및 날짜 리셋
@@ -84,7 +86,10 @@ class SellerDeliveryViewModel @Inject constructor(
         updateDateOptionsForMode(newMode)
         
         // 새로운 날짜로 배송 목록 로드
-        loadDeliveries(today)
+        //loadDeliveries(today)
+
+        //등록일시.
+        //loadTwoDays()
     }
 
     // 연도
@@ -113,6 +118,7 @@ class SellerDeliveryViewModel @Inject constructor(
         selectedDate.set(Calendar.DAY_OF_MONTH, day)
         _selectedDate.value = selectedDate.time
         loadDeliveries(selectedDate.time)
+        loadTwoDays()
     }
 
     fun getYearPosition(year: Int): Int = currentYearList.indexOf(year).coerceAtLeast(0)
@@ -219,7 +225,7 @@ class SellerDeliveryViewModel @Inject constructor(
                 //성공시 리스트 생성 양식 기입
                 if (response.isSuccessful && response.body() != null) {
                     //뷰에 보일 리스트 간추리기  / 해당 날짜 리스트 조회(서버 연동)
-                    _deliveryList.value =  repository.jsonDelivery(response.body()!!)// + repository.getDeliveriesByDate(date) //repository.getDeliveriesByDate(date) //메모리 내 리스트 추가 조회.
+                    _deliveryList.value = repository.jsonDelivery(response.body()!!)// + repository.getDeliveriesByDate(date) //repository.getDeliveriesByDate(date) //메모리 내 리스트 추가 조회.
                     //Log.d("Delivery/ListAll", _deliveryList.value.toString())
                 } else {
                     Log.d("Delivery/ERROR" , "배송 내역이 없습니다.")
@@ -253,6 +259,24 @@ class SellerDeliveryViewModel @Inject constructor(
 
         repository.addDelivery(deliveryInfo)
         loadDeliveries(pickupDate)
+        loadTwoDays()
+    }
+
+    // 등록 조회시, 오늘내일로 등록된 내역 확인.
+    fun loadTwoDays(){
+        if (_mode.value == DeliveryMode.REGISTER) {
+            //오늘 내역 저장
+            val todayList = _deliveryList.value ?: emptyList()
+
+            val calendar = Calendar.getInstance()
+            calendar.add(Calendar.DATE, 1)  // 하루 더하기
+            val tomorrow = calendar.time
+            loadDeliveries(tomorrow)
+            val tomorrowList = _deliveryList.value ?: emptyList()
+
+            //합친결과값반환
+            _deliveryList.value = todayList + tomorrowList
+        }
     }
 
     // 날짜 포맷

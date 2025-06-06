@@ -144,6 +144,10 @@ class DeliveryInputViewModel @Inject constructor(
                 Log.d("Delivery/Register", deliveryInfo.toString())
                 Log.d("Delivery/Register", response.body().toString())
 
+                Log.d("DeliveryRegister", "isSuccessful: ${response.isSuccessful}")
+                Log.d("DeliveryRegister", "body: ${response.body()}")
+                Log.d("DeliveryRegister", "errorBody: ${response.errorBody()?.string()}")
+
                 //성공시 리스트 생성 양식 기입
                 if (response.isSuccessful && response.body() != null && response.body()?.status == true) {
                     //여기서 response 반환. 어디다가 쓰느냐라... 현재 지정 없음.
