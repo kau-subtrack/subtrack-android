@@ -115,6 +115,7 @@ class RegisterFragment : Fragment() {
             val id = binding.etId.text.toString()
             val password = binding.etPassword.text.toString()
             val passwordConfirm = binding.etPasswordConfirm.text.toString()
+            val name = binding.etName.text.toString()
 
             // 사용자 유형별 추가 정보
             // 에 따른 회원가입 시행
@@ -132,7 +133,7 @@ class RegisterFragment : Fragment() {
                     4. longitude 계산 후 추가 
                      */
                     viewModel.register(
-                        id, password, "name", UserType.OWNER,
+                        id, password, name, UserType.OWNER,
                         address,
                         detailAddress = detailAddress, latitude = 15.1, longitude = 15.1
                     )
@@ -148,7 +149,7 @@ class RegisterFragment : Fragment() {
 
                     // TODO(phoneNumber, vehicleNumber 입력란 필요)
                     viewModel.register(
-                        id, password, "name", UserType.DRIVER,
+                        id, password, name, UserType.DRIVER,
                         null, null, null, null,
                         phoneNumber = "010-0000-0000", vehicleNumber = "01가2345",
                         city, district
