@@ -28,6 +28,7 @@ data class DeliveryInfo(
     val isCautionRequired: Boolean = false, // 취급주의 여부
     val trackingNumber: String? = null // 운송장 번호 (시스템에서 자동 생성될 수 있음)
 )
+
 data class RegisterDelivery(
     val productName: String,
     val recipientName: String,
@@ -36,15 +37,14 @@ data class RegisterDelivery(
     val detailAddress: String? = null, // 상세 주소
     val size: PackageSize,
     val caution: Boolean,
-    val pickupScheduledDate: String, // 수거 날짜
-    //val isCautionRequired: Boolean = false, // 취급주의 여부
-    //val trackingNumber: String? = null
+    val pickupScheduledDate: String // 수거 날짜
 )
 
 data class RegisterDeliveryResponse(
     val status: Boolean,
     val message: String,
-    val parcelId: Int, // 기입된 고유 번호. 쓸일이 있을진 모르겠네.
+    val parcelId: Int,
+    val trackingCode: String,
     val usedPoints: Int
 )
 
