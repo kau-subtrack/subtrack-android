@@ -132,7 +132,7 @@ class DriverMapViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     val responseBody = response.body()
                     if (responseBody != null) {
-                        _nextDestination.value = responseBody
+                        _nextDestination.value = responseBody!!
                         Log.d("TSP_API", "✅ 다음 목적지 응답: ${responseBody.status}")
 
                         when (responseBody.status) {
