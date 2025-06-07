@@ -47,11 +47,25 @@ class DriverCollectViewModel @Inject constructor(
         
         viewModelScope.launch {
             try {
+                android.util.Log.d("API_DEBUG", "수거 목록 API 호출 시작...")
                 val response = driverApiService.getPickupList("Bearer $token")
+                
+                // 응답 로깅
+                android.util.Log.d("API_DEBUG", "수거 목록 API 응답 상태 코드: ${response.code()}")
+                
+                if (!response.isSuccessful) {
+                    val errorBody = response.errorBody()?.string() ?: "내용 없음"
+                    android.util.Log.e("API_ERROR", "에러 응답 본문: $errorBody")
+                } else {
+                    android.util.Log.d("API_DEBUG", "수거 목록 API 응답 성공")
+                }
+                
                 handlePickupListResponse(response)
             } catch (e: IOException) {
+                android.util.Log.e("API_ERROR", "네트워크 연결 오류: ${e.message}", e)
                 _errorMessage.value = "네트워크 연결 오류가 발생했습니다."
             } catch (e: Exception) {
+                android.util.Log.e("API_ERROR", "API 호출 중 예외 발생: ${e.message}", e)
                 _errorMessage.value = "오류가 발생했습니다: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -68,16 +82,34 @@ class DriverCollectViewModel @Inject constructor(
         if (response.isSuccessful) {
             val pickupResponse = response.body()
             if (pickupResponse != null && pickupResponse.status) {
-                // isNextPickupTarget이 true인 항목이 먼저 오도록 정렬
-                val sortedList = pickupResponse.data.sortedByDescending { it.isNextPickupTarget }
-                _pickupList.value = sortedList
+                try {
+                    // isNextPickupTarget이 true인 항목이 먼저 오도록 정렬
+                    val sortedList = pickupResponse.data.sortedByDescending { it.isNextPickupTarget }
+                    _pickupList.value = sortedList
+                    
+                    // 로그에 데이터 출력 (디버깅용)
+                    android.util.Log.d("API_DEBUG", "수거 목록 ${sortedList.size}개 수신됨")
+                    for (item in sortedList.take(3)) { // 처음 3개 항목만 로그로 출력
+                        android.util.Log.d("API_DEBUG", "- 항목: 소유자ID=${item.ownerId}, 상태=${item.status}, 주소=${item.address}")
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("API_ERROR", "수거 목록 처리 중 오류: ${e.message}", e)
+                    _errorMessage.value = "데이터 처리 중 오류가 발생했습니다: ${e.message}"
+                }
             } else {
+                android.util.Log.w("API_DEBUG", "서버 응답 status가 false: ${pickupResponse?.data?.size ?: 0}개 데이터")
                 _errorMessage.value = "데이터를 불러올 수 없습니다."
             }
         } else {
             when (response.code()) {
-                401 -> _errorMessage.value = "인증 오류가 발생했습니다. 다시 로그인해주세요."
-                else -> _errorMessage.value = "서버 오류가 발생했습니다 (${response.code()})."
+                401 -> {
+                    android.util.Log.e("API_ERROR", "인증 오류(401): 토큰이 유효하지 않음")
+                    _errorMessage.value = "인증 오류가 발생했습니다. 다시 로그인해주세요."
+                }
+                else -> {
+                    android.util.Log.e("API_ERROR", "서버 오류(${response.code()})")
+                    _errorMessage.value = "서버 오류가 발생했습니다 (${response.code()})."
+                }
             }
         }
     }

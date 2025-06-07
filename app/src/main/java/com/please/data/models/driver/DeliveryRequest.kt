@@ -17,9 +17,10 @@ data class DeliveryResponse(
 
 data class DeliveryList(
     val trackingCode: String,
+    val productName: String,
     val deliveryAddress: Address,
     val deliveryTimeWindow: String,
-    val status: String,
+    val status: ParcelStatus, // String에서 ParcelStatus enum으로 변경
     val isNextDeliveryTarget: Boolean
 )
 
@@ -43,7 +44,7 @@ data class DeliveryCom(
     val productName: String,
     val deliveryAddress: Address,
     val deliveryTimeWindow: String,
-    val status: Boolean
+    val status: ParcelStatus // Boolean에서 ParcelStatus enum으로 변경
 )
 
 //이제 DB와 일치하도록 Int 타입으로 수정
