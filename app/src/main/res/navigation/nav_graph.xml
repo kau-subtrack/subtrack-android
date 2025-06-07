@@ -150,6 +150,13 @@
             android:name="com.please.ui.driver.map.DriverMapFragment"
             android:label="DriverMapFragment"
             tools:layout="@layout/fragment_driver_map" />
+
+        <fragment
+            android:id="@+id/driverDeliveryMapFragment"
+            android:name="com.please.ui.driver.delivery.DriverDeliveryMapFragment"
+            android:label="DriverDeliveryMapFragment"
+            tools:layout="@layout/fragment_driver_delivery_map" />
+
     </navigation>
     
     <fragment
