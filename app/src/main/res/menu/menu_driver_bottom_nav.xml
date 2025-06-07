@@ -14,6 +14,11 @@
         android:title="배송" />
     <item
         android:id="@+id/driverMapFragment"
-        android:icon="@drawable/ic_location"
-        android:title="지도" />
+        android:icon="@drawable/ic_pickup_box"
+        android:title="수거 지도" />
+
+    <item
+        android:id="@+id/driverDeliveryMapFragment"
+        android:icon="@drawable/ic_delivery_truck"
+        android:title="배달지도" />
 </menu>
