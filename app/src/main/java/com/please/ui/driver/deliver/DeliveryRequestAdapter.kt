@@ -6,10 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.please.R
-import com.please.data.models.driver.DeliveryRequest
+import com.please.data.models.driver.DeliveryList
 
 class DeliveryRequestAdapter(
-    private val items: MutableList<DeliveryRequest>,
+    private val items: MutableList<DeliveryList>,
     private val onCompleteClick: (position: Int) -> Unit
 ) : RecyclerView.Adapter<DeliveryRequestAdapter.ViewHolder>() {
 
@@ -30,9 +30,13 @@ class DeliveryRequestAdapter(
             if (position < items.size) {
                 val item = items[position]
                 
-                holder.numberText.text = item.trackingNumber
-                holder.detailsText.text = "제품명: ${item.productDetails}"
+                // 송장번호
+                holder.numberText.text = item.trackingCode
                 
+                // 제품명
+                holder.detailsText.text = "제품명: ${item.productName}"
+                
+                // 배송 완료 버튼 클릭 이벤트
                 holder.completeButton.setOnClickListener {
                     onCompleteClick(holder.adapterPosition)
                 }

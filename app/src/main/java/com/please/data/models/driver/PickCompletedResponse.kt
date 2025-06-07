@@ -18,5 +18,5 @@ data class PickCompletedData(
     val pickupTimeWindow: String,
     val productName: String,
     val parcelCount: Int,
-    val status: String
+    val status: ParcelStatus // String에서 ParcelStatus enum으로 변경
 )
