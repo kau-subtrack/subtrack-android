@@ -207,7 +207,7 @@
                     android:layout_height="56dp"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    android:text="✅ 수거완료"
+                    android:text="수거완료"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:backgroundTint="@color/success_color"
