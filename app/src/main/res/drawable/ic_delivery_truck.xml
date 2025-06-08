@@ -1,0 +1,32 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorOnSurface">
+
+    <!-- 트럭 캐빈 -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M20,8H16V4A2,2 0 0,0 14,2H2A2,2 0 0,0 0,4V16A2,2 0 0,0 2,18H4A3,3 0 0,0 7,21A3,3 0 0,0 10,18H14A3,3 0 0,0 17,21A3,3 0 0,0 20,18H22V12L20,8Z"/>
+
+    <!-- 트럭 화물칸 -->
+    <path
+        android:fillColor="@android:color/black"
+        android:pathData="M16,8H20L22,12V16H20A3,3 0 0,1 17,19A3,3 0 0,1 14,16V8H16Z"/>
+
+    <!-- 앞바퀴 -->
+    <path
+        android:fillColor="#FF9800"
+        android:pathData="M7,19A1,1 0 0,1 6,18A1,1 0 0,1 7,17A1,1 0 0,1 8,18A1,1 0 0,1 7,19Z"/>
+
+    <!-- 뒷바퀴 -->
+    <path
+        android:fillColor="#FF9800"
+        android:pathData="M17,19A1,1 0 0,1 16,18A1,1 0 0,1 17,17A1,1 0 0,1 18,18A1,1 0 0,1 17,19Z"/>
+
+    <!-- 배달 화살표 (아래쪽) -->
+    <path
+        android:fillColor="#FF9800"
+        android:pathData="M9,6L12,9L15,6H13V3H11V6H9Z"/>
+</vector>

@@ -1,6 +1,8 @@
 package com.please.di
 
 import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.please.data.api.AuthApiService
 import com.please.data.api.DriverApiService
 import com.please.data.api.GoogleMapApi
@@ -9,6 +11,8 @@ import com.please.data.api.PathAiPickupApi
 import com.please.data.api.SellerProfileApi
 import com.please.data.api.SubscriptionApi
 import com.please.data.api.TspApiService
+import com.please.data.models.driver.ParcelSize
+import com.please.data.models.driver.ParcelStatus
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,6 +21,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -45,17 +50,30 @@ object NetworkModule {
 
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
+            .connectTimeout(30, TimeUnit.SECONDS)  // 연결 타임아웃
+            .readTimeout(120, TimeUnit.SECONDS)    // 읽기 타임아웃 (여기가 중요!)
+            .writeTimeout(30, TimeUnit.SECONDS)    // 쓰기 타임아웃
             .build()
     }
 
     @Provides
     @Singleton
+    fun provideGson(): Gson {
+        return GsonBuilder()
+            .registerTypeAdapter(ParcelStatus::class.java, ParcelStatusAdapter())
+            .registerTypeAdapter(ParcelSize::class.java, ParcelSizeAdapter())
+            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") // ISO 8601 형식
+            .create()
+    }
+    
+    @Provides
+    @Singleton
     @Named("default")
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 

@@ -1,0 +1,27 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorOnSurface">
+
+    <!-- 박스 몸체 -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,2L2,7V17C2,18.1 2.9,19 4,19H20C21.1,19 22,18.1 22,17V7L12,2Z"/>
+
+    <!-- 박스 상단 라인 -->
+    <path
+        android:fillColor="@android:color/black"
+        android:pathData="M2,7L12,12L22,7"/>
+
+    <!-- 박스 중앙 라인 -->
+    <path
+        android:fillColor="@android:color/black"
+        android:pathData="M12,12V22"/>
+
+    <!-- 수거 화살표 (위쪽) -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M9,14L12,11L15,14H13V17H11V14H9Z"/>
+</vector>

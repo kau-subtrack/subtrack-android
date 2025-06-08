@@ -12,7 +12,7 @@ data class PickList(
     val pickupTimeWindow: String,
     val productName: String,
     val parcelCount: Int,
-    val status: String, //해당 내용은 enum이긴 하나.. 애매함.
+    val status: ParcelStatus, // ParcelStatus enum으로 변경
     val isNextPickupTarget: Boolean
 )
 

@@ -62,4 +62,15 @@ interface DriverApiService {
      */
     @GET("api/pickup/all-completed")
     suspend fun checkAllCompleted(): Response<PickAllResponse>
+
+
+
+    @GET("api/delivery/next")
+    suspend fun getNextDelivery(@Header("Authorization") authorization: String): Response<NextDestinationResponse>
+
+    @POST("api/delivery/complete")
+    suspend fun completeDelivery(@Header("Authorization") authorization: String, @Body request: CompleteDeliveryRequest): Response<ApiResponse>
+
+    @POST("api/delivery/hub-arrived")
+    suspend fun completeDeliveryHubArrival(@Header("Authorization") authorization: String): Response<ApiResponse>
 }

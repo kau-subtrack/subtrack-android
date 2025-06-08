@@ -5,12 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.please.R
-import com.please.data.models.driver.DeliveryRequest
-import com.please.data.repositories.DriverDataRepository
+import com.please.data.models.driver.DeliveryList
+import com.please.utils.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,9 +22,13 @@ class DriverDeliverFragment : Fragment() {
     private lateinit var emptyView: TextView
     private lateinit var deliveryCountView: TextView
     private lateinit var adapter: DeliveryRequestAdapter
+    private lateinit var preferenceManager: PreferenceManager
+    
+    // ViewModel 초기화
+    private val viewModel: DriverDeliverViewModel by viewModels()
     
     // 데이터 리스트
-    private val deliveryItems = mutableListOf<DeliveryRequest>()
+    private val deliveryItems = mutableListOf<DeliveryList>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,6 +42,9 @@ class DriverDeliverFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         try {
+            // Preference Manager 초기화
+            preferenceManager = PreferenceManager(requireContext())
+            
             // 뷰 초기화
             recyclerView = view.findViewById(R.id.rv_items)
             emptyView = view.findViewById(R.id.tv_empty)
@@ -44,11 +53,11 @@ class DriverDeliverFragment : Fragment() {
             // 리사이클러뷰 설정
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
             
+            // ViewModel 관찰 설정
+            setupObservers()
+            
             // 데이터 로드
             loadData()
-            
-            // 항목 수 업데이트
-            updateDeliveryCount()
             
             // 어댑터 설정
             adapter = DeliveryRequestAdapter(deliveryItems) { position ->
@@ -56,16 +65,13 @@ class DriverDeliverFragment : Fragment() {
                     // 배송 완료 버튼 클릭 처리
                     if (position >= 0 && position < deliveryItems.size) {
                         val item = deliveryItems[position]
-                        DriverDataRepository.removeDeliveryRequest(item.id)
-                        deliveryItems.removeAt(position)
-                        adapter.notifyItemRemoved(position)
-                        adapter.notifyItemRangeChanged(position, deliveryItems.size)
-                        updateEmptyState()
-                        updateDeliveryCount()
+                        val token = preferenceManager.getToken() ?: ""
+                        viewModel.completeDelivery(token, item.trackingCode)
                     }
                 } catch (e: Exception) {
                     // 오류 처리
                     e.printStackTrace()
+                    Toast.makeText(requireContext(), "배송 완료 처리 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
             
@@ -76,26 +82,48 @@ class DriverDeliverFragment : Fragment() {
         } catch (e: Exception) {
             // 예외 처리
             e.printStackTrace()
+            Toast.makeText(requireContext(), "화면 초기화 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    private fun setupObservers() {
+        // 배송 목록 관찰
+        viewModel.deliveryList.observe(viewLifecycleOwner) { items ->
+            deliveryItems.clear()
+            deliveryItems.addAll(items)
+            adapter.notifyDataSetChanged()
+            updateEmptyState()
+            updateDeliveryCount()
+        }
+        
+        // 에러 메시지 관찰
+        viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.clearErrorMessage()
+            }
+        }
+        
+        // 작업 완료 상태 관찰
+        viewModel.operationCompleted.observe(viewLifecycleOwner) { completed ->
+            if (completed) {
+                Toast.makeText(requireContext(), "배송이 완료 처리되었습니다.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
     
     private fun loadData() {
         try {
-            // 데이터 리포지토리에서 데이터 가져오기
-            deliveryItems.clear()
-            deliveryItems.addAll(DriverDataRepository.getDeliveryRequests())
-            
-            // 로그로 항목 수 출력
-            val itemCount = deliveryItems.size
-            println("배송 요청 항목 수: $itemCount")
-            // 첫 번째 항목과 마지막 항목 정보 출력
-            if (itemCount > 0) {
-                println("첫 번째 배송 항목: ${deliveryItems.first().trackingNumber}")
-                println("마지막 배송 항목: ${deliveryItems.last().trackingNumber}")
+            val token = preferenceManager.getToken() ?: ""
+            if (token.isNotEmpty()) {
+                viewModel.fetchDeliveryList(token)
+            } else {
+                Toast.makeText(requireContext(), "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             // 예외 처리
             e.printStackTrace()
+            Toast.makeText(requireContext(), "데이터 로드 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
         }
     }
     
@@ -127,9 +155,6 @@ class DriverDeliverFragment : Fragment() {
         try {
             // 화면이 다시 표시될 때 데이터 갱신
             loadData()
-            adapter.notifyDataSetChanged()
-            updateEmptyState()
-            updateDeliveryCount()
         } catch (e: Exception) {
             // 예외 처리
             e.printStackTrace()
