@@ -88,7 +88,7 @@ class DriverDeliveryMapViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     val responseBody = response.body()
                     if (responseBody != null) {
-                        _nextDelivery.value = responseBody
+                        _nextDelivery.value = responseBody!!
                         Log.d("DELIVERY_API", "✅ 다음 배달지 응답: ${responseBody.status}")
 
                         when (responseBody.status) {
