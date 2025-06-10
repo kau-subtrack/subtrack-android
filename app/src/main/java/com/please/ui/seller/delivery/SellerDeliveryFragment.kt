@@ -21,6 +21,8 @@ import java.util.Calendar
 import android.util.Log
 import android.widget.Spinner
 import androidx.appcompat.widget.AppCompatSpinner
+import androidx.core.content.ContentProviderCompat
+import com.please.ui.seller.home.SellerHomeViewModel
 
 @AndroidEntryPoint
 class SellerDeliveryFragment : Fragment() {
@@ -60,7 +62,7 @@ class SellerDeliveryFragment : Fragment() {
     //배송 상태 업데이트
     private fun setupRecyclerView() {
         deliveryAdapter = DeliveryAdapter(
-            onDeleteClick = { id -> showDeleteConfirmDialog(id) },
+            onDeleteClick = { code -> showDeleteConfirmDialog(code) },
             getDeliveryStatusColor = { status ->
                 when (status) {
                     DeliveryStatus.PENDING -> ContextCompat.getColor(requireContext(), R.color.delivery_pending)
@@ -141,7 +143,7 @@ class SellerDeliveryFragment : Fragment() {
                     binding.btnView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                     binding.fabAddDelivery.visibility = View.VISIBLE
                     binding.tvRegisterInfo.visibility = View.VISIBLE
-                    binding.tvRegisterInfo.text = "등록 모드에서는 오늘 날짜만 사용 가능합니다."
+                    binding.tvRegisterInfo.text = "등록에서는 금일과 익일 리스트만 확인 가능합니다."
                     deliveryAdapter.setDeleteButtonVisible(true)
                     
                     // 등록 모드에서는 스피너 비활성화
@@ -206,12 +208,12 @@ class SellerDeliveryFragment : Fragment() {
     }
 
     //택배 수동 삭제
-    private fun showDeleteConfirmDialog(deliveryId: Int) {
+    private fun showDeleteConfirmDialog(trackCode: String?) {
         AlertDialog.Builder(requireContext())
             .setTitle("택배 삭제")
             .setMessage("이 택배를 삭제하시겠습니까?")
             .setPositiveButton("삭제") { _, _ ->
-                viewModel.deleteDelivery(deliveryId)
+                viewModel.deleteDelivery(trackCode)
             }
             .setNegativeButton("취소", null)
             .show()

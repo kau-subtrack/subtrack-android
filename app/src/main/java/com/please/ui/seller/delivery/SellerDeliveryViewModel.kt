@@ -1,6 +1,7 @@
 package com.please.ui.seller.delivery
 
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -236,9 +237,24 @@ class SellerDeliveryViewModel @Inject constructor(
         }
     }
 
-    fun deleteDelivery(id: Int) {
-        repository.deleteDelivery(id)
-        _selectedDate.value?.let { loadDeliveries(it) }
+    fun deleteDelivery(code: String?) {
+        if(code == null) Log.d("Delivery/Delete" , "삭제 요청에 실패했습니다")
+
+        viewModelScope.launch {
+            try {
+                val response = repository.deleteDelivery(token, code!!)
+
+                if (response.isSuccessful && response.body() != null) {
+                    //현재 list 리로딩
+                    _selectedDate.value?.let { loadDeliveries(it) }
+                    Log.d("Delivery/Delete" , "삭제 요청이 정상 처리되었습니다.")
+                } else {
+                    Log.d("Delivery/ERROR" , "삭제 요청에 실패했습니다")
+                }
+            } catch (e: Exception) {
+                Log.d("Delivery/ERROR" , e.message.toString())
+            }
+        }
     }
 
     // 등록 추가

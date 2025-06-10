@@ -9,11 +9,14 @@ import com.please.data.models.seller.PlanId
 import com.please.data.models.seller.RegisterDelivery
 import com.please.data.models.seller.RegisterDeliveryResponse
 import com.please.data.models.seller.SellerHomeInfo
+import com.please.data.models.seller.SoftDeleteRequest
+import com.please.data.models.seller.SoftDeleteResponse
 import com.please.data.models.seller.SubscriptionResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.QueryMap
@@ -32,13 +35,15 @@ interface SellerProfileApi {
     @GET("owner/shipment/list")
     suspend fun shipmentList(@Header("authorization") authorization: String, @QueryMap params: Map<String, String>): Response<DeliveryBaseResponse>
 
-    // 밀림.
+    // 미사용
     //@GET("owner/shipment/trackingNumber") // TODO 반환값 변경.
     //suspend fun shipmentTrack(@Header("authorization") authorization: String): Response<SellerHomeInfo> //Response<ApiResponse<SellerHomeInfo>>
 
     @POST("owner/shipment/register")
-    suspend fun shipmentRegister(@Header("authorization") authorization: String, @Body delivery: RegisterDelivery): Response<RegisterDeliveryResponse> //Response<ApiResponse<SellerHomeInfo>>
+    suspend fun shipmentRegister(@Header("authorization") authorization: String, @Body delivery: RegisterDelivery): Response<RegisterDeliveryResponse>
 
+    @PATCH("owner/shipment/delete")
+    suspend fun softDelete(@Header("authorization") authorization: String, @Body trackCode: SoftDeleteRequest): Response<SoftDeleteResponse>
 
     // TODO 이후 아래는 모두 미사용 상태
     // 마이페이지 - 현재 없음.
@@ -56,4 +61,5 @@ interface SellerProfileApi {
     //미사용
     @PUT("owner/password")
     suspend fun updatePassword(@Body request: PasswordUpdateRequest): Response<ApiResponse<Unit>>
+
 }
