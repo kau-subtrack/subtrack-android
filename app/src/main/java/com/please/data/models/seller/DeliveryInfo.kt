@@ -65,3 +65,12 @@ data class DeliveryBaseResponse(
     val date: String,
     val data: List<ComTrackPack>
 )
+
+data class SoftDeleteRequest(
+    val trackingCode: String
+)
+
+data class SoftDeleteResponse(
+    val status: Boolean,
+    val message: String
+)

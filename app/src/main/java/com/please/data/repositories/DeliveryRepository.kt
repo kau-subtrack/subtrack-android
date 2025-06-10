@@ -1,10 +1,15 @@
 package com.please.data.repositories
 
 import android.util.Log
+import com.please.data.api.SellerProfileApi
 import com.please.data.models.seller.DeliveryBaseResponse
 import com.please.data.models.seller.DeliveryInfo
 import com.please.data.models.seller.DeliveryStatus
 import com.please.data.models.seller.ParcelStatus
+import com.please.data.models.seller.SellerHomeInfo
+import com.please.data.models.seller.SoftDeleteRequest
+import com.please.data.models.seller.SoftDeleteResponse
+import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.Random
@@ -16,7 +21,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DeliveryRepository @Inject constructor() {
+class DeliveryRepository @Inject constructor(
+    private val ownerService: SellerProfileApi
+) {
 
     // 실제 구현에서는 API 또는 로컬 데이터베이스에서 데이터를 관리합니다.
     // 지금은 메모리에 임시 저장합니다.
@@ -92,8 +99,21 @@ class DeliveryRepository @Inject constructor() {
     }
 
     // 배송 정보 삭제
-    fun deleteDelivery(id: Int) {
-        deliveryList.removeIf { it.id == id }
+    suspend fun deleteDelivery(token: String, code: String): Response<SoftDeleteResponse> {
+        /*
+        val index = deliveryList.indexOfFirst { it.id == id }
+        if(index != -1 ){
+            Code = deliveryList[index].trackingNumber!!
+            Log.d("Delivery/Delete", index.toString())
+            Log.d("Delivery/Delete", Code)
+        }
+
+         */
+
+        val trackCode = SoftDeleteRequest( trackingCode = code )
+        //deliveryList.removeIf { it.id == id }
+        //백엔드 삭제요청(소프트)
+        return ownerService.softDelete("Bearer $token", trackCode)
     }
 
     // 배송 상태 업데이트
